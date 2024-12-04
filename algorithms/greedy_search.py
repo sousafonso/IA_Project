@@ -4,42 +4,50 @@
 
 # Contém a implementação do algoritmo de procura gulosa, que foca em expandir o nó mais promissor de acordo com uma heurística.
 
-def greedy_search(graph, start, goal, heuristic):
-    # Inicializa a lista de nós a serem visitados com o nó inicial
-    open_list = [start]
-    # Inicializa a lista de nós visitados
-    closed_list = []
-    # Inicializa o dicionário de custos acumulados
-    costs = {start: 0}
-    # Inicializa o dicionário de nós predecessores
-    predecessors = {start: None}
+from queue import PriorityQueue
 
-    # Enquanto houver nós a serem visitados
-    while open_list:
-        # Seleciona o nó mais promissor
-        current = min(open_list, key=lambda node: costs[node] + heuristic(node, goal))
-        # Se o nó for o objetivo, retorna o caminho até ele
+from models.graph import Graph
+from models.locality import Locality
+from models.route import Route
+from models.transport import Transport
+from models.supply import Supply
+
+def greedy_search(graph: Graph, start: Locality, goal: Locality, transport: Transport):
+    # Inicializa a fila de prioridade
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
+    
+    # Inicializa o caminho
+    came_from = {start: None}
+    
+    # Enquanto houver localidades na fila de prioridade
+    while not frontier.empty():
+        current = frontier.get()
+        
+        # Se a localidade atual for o objetivo, termina
         if current == goal:
-            path = []
-            while current is not None:
-                path.insert(0, current)
-                current = predecessors[current]
-            return path
-        # Remove o nó da lista de abertos
-        open_list.remove(current)
-        # Adiciona o nó à lista de fechados
-        closed_list.append(current)
-        # Para cada vizinho do nó
-        for neighbor, distance in graph.get_neighbors(current):
-            # Se o vizinho já foi visitado, ignora
-            if neighbor in closed_list:
-                continue
-            # Calcula o custo acumulado até o vizinho
-            new_cost = costs[current] + distance
-            # Se o vizinho não está na lista de abertos, adiciona
-            if neighbor not in open_list:
-                open_list.append(neighbor)
-            # Se o novo custo for menor que o custo atual, atualiza
-            if neighbor not in costs or new_cost < costs[neighbor]:
-                costs[neighbor] = new_cost
-                predecessors[neighbor] = current
+            break
+        
+        # Para cada localidade adjacente
+        for next in graph.neighbors(current):
+            # Se a localidade não foi visitada
+            if next not in came_from:
+                # Calcula a prioridade
+                priority = graph.heuristic(next, goal)
+                
+                # Adiciona a localidade à fila de prioridade
+                frontier.put(next, priority)
+                
+                # Atualiza o caminho
+                came_from[next] = current
+    
+    # Reconstrói o caminho
+    current = goal
+    path = []
+    while current != start:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+
+    return path

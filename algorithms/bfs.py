@@ -4,28 +4,47 @@
 
 # Contém a implementação do algoritmo de procura em largura (Breadth-First Search), utilizado para explorar todas as rotas em um nível antes de passar para o próximo.
 
-def bfs(graph, start, goal):
-    explored = []
-    queue = [[start]]
+from queue import Queue
+
+from models.graph import Graph
+from models.locality import Locality
+from models.route import Route
+from models.transport import Transport
+from models.supply import Supply
+
+def bfs(graph: Graph, start: Locality, goal: Locality, transport: Transport):
+    # Inicializa a fila
+    frontier = Queue()
+    frontier.put(start)
     
-    if start == goal:
-        return "Você já está no seu destino."
+    # Inicializa o caminho
+    came_from = {start: None}
     
-    while queue:
-        path = queue.pop(0)
-        node = path[-1]
+    # Enquanto houver localidades na fila
+    while not frontier.empty():
+        current = frontier.get()
         
-        if node not in explored:
-            neighbours = graph[node]
-            
-            for neighbour in neighbours:
-                new_path = list(path)
-                new_path.append(neighbour)
-                queue.append(new_path)
+        # Se a localidade atual for o objetivo, termina
+        if current == goal:
+            break
+        
+        # Para cada localidade adjacente
+        for next in graph.neighbors(current):
+            # Se a localidade não foi visitada
+            if next not in came_from:
+                # Adiciona a localidade à fila
+                frontier.put(next)
                 
-                if neighbour == goal:
-                    return new_path
-            
-            explored.append(node)
+                # Atualiza o caminho
+                came_from[next] = current
     
-    return "Não existe caminho entre o ponto de partida e o destino."
+    # Reconstrói o caminho
+    current = goal
+    path = []
+    while current != start:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+
+    return path

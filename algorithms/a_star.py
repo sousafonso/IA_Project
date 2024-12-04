@@ -4,41 +4,59 @@
 
 # Implementa o algoritmo A*, que é uma procura informada que utiliza uma função heurística para encontrar o caminho mais eficiente.
 
-def a_star(graph, start, goal):
-    open_set = set([start])
-    closed_set = set()
-    came_from = {}
-    g_score = {node: float('inf') for node in graph}
-    g_score[start] = 0
-    f_score = {node: float('inf') for node in graph}
-    f_score[start] = heuristic(start, goal)
+from queue import PriorityQueue
+
+from models.graph import Graph
+from models.locality import Locality
+from models.route import Route
+from models.transport import Transport
+from models.supply import Supply
+
+def a_star(graph: Graph, start: Locality, goal: Locality, transport: Transport):
+    # Inicializa a fila de prioridade
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
     
-    while open_set:
-        current = min(open_set, key=lambda node: f_score[node])
+    # Inicializa o custo do caminho
+    cost_so_far = {start: 0}
+    
+    # Inicializa o caminho
+    came_from = {start: None}
+    
+    # Enquanto houver localidades na fila de prioridade
+    while not frontier.empty():
+        current = frontier.get()
         
+        # Se a localidade atual for o objetivo, termina
         if current == goal:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            return path
+            break
         
-        open_set.remove(current)
-        closed_set.add(current)
-        
-        for neighbor in graph[current]:
-            if neighbor in closed_set:
-                continue
+        # Para cada localidade adjacente
+        for next in graph.neighbors(current):
+            # Calcula o novo custo
+            new_cost = cost_so_far[current] + graph.cost(current, next, transport)
             
-            tentative_g_score = g_score[current] + graph[current][neighbor]
-            
-            if neighbor not in open_set:
-                open_set.add(neighbor)
-            elif tentative_g_score >= g_score[neighbor]:
-                continue
-            
-            came_from[neighbor] = current
-            g_score[neighbor] = tentative_g_score
-            f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, goal)
+            # Se a localidade não foi visitada ou o novo custo é menor que o custo atual
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                # Atualiza o custo
+                cost_so_far[next] = new_cost
+                
+                # Calcula a prioridade
+                priority = new_cost + graph.heuristic(next, goal)
+                
+                # Adiciona a localidade à fila de prioridade
+                frontier.put(next, priority)
+                
+                # Atualiza o caminho
+                came_from[next] = current
     
-    return None
+    # Reconstrói o caminho
+    current = goal
+    path = []
+    while current != start:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    
+    return path

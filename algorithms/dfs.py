@@ -4,28 +4,44 @@
 
 # Implementa o algoritmo de procura em profundidade (Depth-First Search), que explora cada caminho até o final antes de retroceder e tentar outras opções.
 
-def dfs(graph, start, goal) :
-    explored = []
-    stack = [[start]]
+from models.graph import Graph
+from models.locality import Locality
+from models.route import Route
+from models.transport import Transport
+from models.supply import Supply
+
+def dfs(graph: Graph, start: Locality, goal: Locality, transport: Transport):
+    # Inicializa a pilha
+    frontier = [start]
     
-    if start == goal:
-        return "Você já está no seu destino."
+    # Inicializa o caminho
+    came_from = {start: None}
     
-    while stack:
-        path = stack.pop()
-        node = path[-1]
+    # Enquanto houver localidades na pilha
+    while frontier:
+        current = frontier.pop()
         
-        if node not in explored:
-            neighbours = graph[node]
-            
-            for neighbour in neighbours:
-                new_path = list(path)
-                new_path.append(neighbour)
-                stack.append(new_path)
+        # Se a localidade atual for o objetivo, termina
+        if current == goal:
+            break
+        
+        # Para cada localidade adjacente
+        for next in graph.neighbors(current):
+            # Se a localidade não foi visitada
+            if next not in came_from:
+                # Adiciona a localidade à pilha
+                frontier.append(next)
                 
-                if neighbour == goal:
-                    return new_path
-            
-            explored.append(node)
+                # Atualiza o caminho
+                came_from[next] = current
     
-    return "Não existe caminho entre o ponto de partida e o destino."
+    # Reconstrói o caminho
+    current = goal
+    path = []
+    while current != start:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+
+    return path
