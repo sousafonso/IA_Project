@@ -25,11 +25,18 @@ def update_conditions(graph):
             print(f"Pavimento de {route.origin} para {route.destination} alterado para {new_pavement}.")
 
 def display_menu():
-    print("\nEscolha uma opção:")
-    print("1. Visualizar grafo")
-    print("2. Executar algoritmo de procura")
-    choice = int(input("Escolha o número correspondente à opção: "))
-    return choice
+    while True:
+        try:
+            print("\nEscolha uma opção:")
+            print("1. Visualizar grafo")
+            print("2. Executar algoritmo de procura")
+            choice = int(input("Escolha o número correspondente à opção: "))
+            if choice in [1, 2]:
+                return choice
+            else:
+                print("Opção inválida. Tente novamente.")
+        except ValueError:
+            print("Entrada inválida. Por favor, insira um número.")
 '''
 def display_graph(graph):
     G = nx.DiGraph()
@@ -56,6 +63,7 @@ def unblock_routes(graph):
             print(f"Rota de {route.origin} para {route.destination} foi desbloqueada.")
 
 def deliver_supplies(graph, algorithm, transport):
+    all_paths = []
     for locality in sorted(graph.nodes.values(), key=lambda loc: loc.urgency, reverse=True):
         for supply in locality.supplies:
             print(f"\nEntregando {supply} para {locality.id} (Urgência: {locality.urgency})")
@@ -65,15 +73,20 @@ def deliver_supplies(graph, algorithm, transport):
             path = algorithm(graph, start, goal, transport)
             if path:
                 print(f"Caminho encontrado: {' -> '.join(path)}")
+                all_paths.append(path)
             else:
                 print(f"Não foi possível encontrar um caminho para {locality.id}. Tentando desbloquear rotas...")
                 unblock_routes(graph)
                 path = algorithm(graph, start, goal, transport)
                 if path:
                     print(f"Caminho encontrado após desbloquear rotas: {' -> '.join(path)}")
+                    all_paths.append(path)
                 else:
                     print(f"Não foi possível encontrar um caminho para {locality.id} mesmo após desbloquear rotas.")
             update_conditions(graph)
+    print("\nCaminhos realizados para entregar todos os mantimentos:")
+    for path in all_paths:
+        print(" -> ".join(path))
 
 def main():
     loc1 = Locality("A", population=500, urgency=3, accessibility="asfalto")
@@ -98,23 +111,36 @@ def main():
     drone = Transport(type="drone", capacity=500, fuel_range=100, speed=100)
     helicopter = Transport(type="helicóptero", capacity=1000, fuel_range=500, speed=150)
 
-    while True:
-        choice = display_menu()
+    choice = display_menu()
+    
+    if choice == 1:
+        display_graph(graph)
+    
+    elif choice == 2:
+        while True:
+            try:
+                algorithm_choice = int(input("Escolha o algoritmo (1: BFS, 2: DFS, 3: A*, 4: Greedy): "))
+                if algorithm_choice in [1, 2, 3, 4]:
+                    break
+                else:
+                    print("Opção inválida. Tente novamente.")
+            except ValueError:
+                print("Entrada inválida. Por favor, insira um número.")
         
-        if choice == 1:
-            display_graph(graph)
+        while True:
+            try:
+                transport_choice = int(input("Escolha o transporte (1: Camião, 2: Drone, 3: Helicóptero): "))
+                if transport_choice in [1, 2, 3]:
+                    break
+                else:
+                    print("Opção inválida. Tente novamente.")
+            except ValueError:
+                print("Entrada inválida. Por favor, insira um número.")
         
-        elif choice == 2:
-            algorithm_choice = int(input("Escolha o algoritmo (1: BFS, 2: DFS, 3: A*, 4: Greedy): "))
-            transport_choice = int(input("Escolha o transporte (1: Camião, 2: Drone, 3: Helicóptero): "))
-            transport = [truck, drone, helicopter][transport_choice - 1]
-            algorithms = [bfs, dfs, a_star, greedy_search]
-            algorithm = algorithms[algorithm_choice - 1]
-            deliver_supplies(graph, algorithm, transport)
-
-        continue_choice = input("\nDeseja executar outra operação? (s/n): ").lower()
-        if continue_choice != 's':
-            break
+        transport = [truck, drone, helicopter][transport_choice - 1]
+        algorithms = [bfs, dfs, a_star, greedy_search]
+        algorithm = algorithms[algorithm_choice - 1]
+        deliver_supplies(graph, algorithm, transport)
 
 if __name__ == "__main__":
     main()
