@@ -1,6 +1,8 @@
 ### `main.py` - Main Execution File
 
 import random
+#import networkx as nx
+#import matplotlib.pyplot as plt
 from models.locality import Locality
 from models.transport import Transport
 from models.route import Route
@@ -28,14 +30,22 @@ def display_menu():
     print("2. Executar algoritmo de procura")
     choice = int(input("Escolha o número correspondente à opção: "))
     return choice
-
+'''
 def display_graph(graph):
-    print("\nGrafo de Localidades e Rotas:")
+    G = nx.DiGraph()
     for node in graph.nodes.values():
-        print(node)
+        G.add_node(node.id, label=f"{node.id}\nUrgência: {node.urgency}")
     for route in graph.edges.values():
-        print(f"Rota de {route.origin} para {route.destination}, Distância: {route.distance} km, Pavimento: {route.type_pavement}, Bloqueada: {route.blocked}")
+        G.add_edge(route.origin, route.destination, label=f"{route.distance} km\n{route.type_pavement}", color='red' if route.blocked else 'black')
 
+    pos = nx.spring_layout(G)
+    edge_labels = nx.get_edge_attributes(G, 'label')
+    edge_colors = [G[u][v]['color'] for u, v in G.edges()]
+
+    nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold', edge_color=edge_colors)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='green')
+    plt.show()
+'''
 def unblock_routes(graph):
     """
     Tenta desbloquear rotas bloqueadas para garantir que pelo menos uma solução seja encontrada.
