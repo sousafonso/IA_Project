@@ -1,62 +1,43 @@
-#Desenvolver um sistema que utilize algoritmos de procura para otimizar a distribuição de suprimentos 
-# (alimentos, água, medicamentos) em zonas afetadas por uma catástrofe natural. O sistema deve garantir a 
-# eficiência no uso dos recursos e priorizar as áreas mais necessitadas, maximizando a assistência no menor tempo possível.
-
-# Implementa o algoritmo A*, que é uma procura informada que utiliza uma função heurística para encontrar o caminho mais eficiente.
-
 from queue import PriorityQueue
-
 from models.graph import Graph
 from models.locality import Locality
 from models.route import Route
 from models.transport import Transport
-from models.supply import Supply
+
+def heuristic(current: Locality, goal: Locality):
+    return ((current.x - goal.x) ** 2 + (current.y - goal.y) ** 2) ** 0.5  # Distância euclidiana
 
 def a_star(graph: Graph, start: Locality, goal: Locality, transport: Transport):
-    # Inicializa a fila de prioridade
     frontier = PriorityQueue()
-    frontier.put(start, 0)
+    frontier.put((0, start))
+    came_from = {start.id: None}
+    cost_so_far = {start.id: 0}
     
-    # Inicializa o custo do caminho
-    cost_so_far = {start: 0}
-    
-    # Inicializa o caminho
-    came_from = {start: None}
-    
-    # Enquanto houver localidades na fila de prioridade
     while not frontier.empty():
-        current = frontier.get()
+        _, current = frontier.get()
         
-        # Se a localidade atual for o objetivo, termina
-        if current == goal:
+        if current.id == goal.id:
             break
         
-        # Para cada localidade adjacente
-        for next in graph.neighbors(current):
-            # Calcula o novo custo
-            new_cost = cost_so_far[current] + graph.cost(current, next, transport)
-            
-            # Se a localidade não foi visitada ou o novo custo é menor que o custo atual
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                # Atualiza o custo
-                cost_so_far[next] = new_cost
-                
-                # Calcula a prioridade
-                priority = new_cost + graph.heuristic(next, goal)
-                
-                # Adiciona a localidade à fila de prioridade
-                frontier.put(next, priority)
-                
-                # Atualiza o caminho
-                came_from[next] = current
+        for neighbor in graph.get_neighbors(current):
+            route = graph.get_route(current, neighbor)
+            if transport.can_access_route(route) and transport.can_complete_route(route.distance):
+                new_cost = cost_so_far[current.id] + route.get_cost()
+                if neighbor.id not in cost_so_far or new_cost < cost_so_far[neighbor.id]:
+                    cost_so_far[neighbor.id] = new_cost
+                    priority = new_cost + heuristic(neighbor, goal) - neighbor.urgency
+                    frontier.put((priority, neighbor))
+                    came_from[neighbor.id] = current.id
+                    transport.update_fuel(route.distance)
     
-    # Reconstrói o caminho
-    current = goal
+    return reconstruct_path(came_from, start.id, goal.id) if goal.id in came_from else None
+
+def reconstruct_path(came_from, start_id, goal_id):
+    current_id = goal_id
     path = []
-    while current != start:
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
+    while current_id != start_id:
+        path.append(current_id)
+        current_id = came_from[current_id]
+    path.append(start_id)
     path.reverse()
-    
     return path

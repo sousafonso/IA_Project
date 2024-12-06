@@ -1,50 +1,35 @@
-#Desenvolver um sistema que utilize algoritmos de procura para otimizar a distribuição de suprimentos 
-# (alimentos, água, medicamentos) em zonas afetadas por uma catástrofe natural. O sistema deve garantir a 
-# eficiência no uso dos recursos e priorizar as áreas mais necessitadas, maximizando a assistência no menor tempo possível.
-
-# Contém a implementação do algoritmo de procura em largura (Breadth-First Search), utilizado para explorar todas as rotas em um nível antes de passar para o próximo.
-
 from queue import Queue
-
 from models.graph import Graph
 from models.locality import Locality
 from models.route import Route
 from models.transport import Transport
-from models.supply import Supply
 
 def bfs(graph: Graph, start: Locality, goal: Locality, transport: Transport):
-    # Inicializa a fila
     frontier = Queue()
     frontier.put(start)
+    came_from = {start.id: None}
     
-    # Inicializa o caminho
-    came_from = {start: None}
-    
-    # Enquanto houver localidades na fila
     while not frontier.empty():
         current = frontier.get()
         
-        # Se a localidade atual for o objetivo, termina
-        if current == goal:
+        if current.id == goal.id:
             break
         
-        # Para cada localidade adjacente
-        for next in graph.neighbors(current):
-            # Se a localidade não foi visitada
-            if next not in came_from:
-                # Adiciona a localidade à fila
-                frontier.put(next)
-                
-                # Atualiza o caminho
-                came_from[next] = current
+        for neighbor in graph.get_neighbors(current):
+            route = graph.get_route(current, neighbor)
+            if neighbor.id not in came_from and transport.can_access_route(route) and transport.can_complete_route(route.distance):
+                frontier.put(neighbor)
+                came_from[neighbor.id] = current.id
+                transport.update_fuel(route.distance)
     
-    # Reconstrói o caminho
-    current = goal
-    path = []
-    while current != start:
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
+    return reconstruct_path(came_from, start.id, goal.id) if goal.id in came_from else None
 
+def reconstruct_path(came_from, start_id, goal_id):
+    current_id = goal_id
+    path = []
+    while current_id != start_id:
+        path.append(current_id)
+        current_id = came_from[current_id]
+    path.append(start_id)
+    path.reverse()
     return path
