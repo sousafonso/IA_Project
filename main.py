@@ -24,10 +24,17 @@ def update_conditions(graph):
 
 def display_menu():
     print("\nEscolha uma opção:")
-    print("1. Executar algoritmo de procura")
-    print("2. Visualizar grafo")
+    print("1. Visualizar grafo")
+    print("2. Executar algoritmo de procura")
     choice = int(input("Escolha o número correspondente à opção: "))
     return choice
+
+def display_graph(graph):
+    print("\nGrafo de Localidades e Rotas:")
+    for node in graph.nodes.values():
+        print(node)
+    for route in graph.edges.values():
+        print(f"Rota de {route.origin} para {route.destination}, Distância: {route.distance} km, Pavimento: {route.type_pavement}, Bloqueada: {route.blocked}")
 
 def unblock_routes(graph):
     """
@@ -37,6 +44,26 @@ def unblock_routes(graph):
         if route.blocked:
             route.blocked = False
             print(f"Rota de {route.origin} para {route.destination} foi desbloqueada.")
+
+def deliver_supplies(graph, algorithm, transport):
+    for locality in sorted(graph.nodes.values(), key=lambda loc: loc.urgency, reverse=True):
+        for supply in locality.supplies:
+            print(f"\nEntregando {supply} para {locality.id} (Urgência: {locality.urgency})")
+            start = graph.get_node("A")  # Supondo que "A" é o ponto de partida
+            goal = locality
+            transport.refuel()
+            path = algorithm(graph, start, goal, transport)
+            if path:
+                print(f"Caminho encontrado: {' -> '.join(path)}")
+            else:
+                print(f"Não foi possível encontrar um caminho para {locality.id}. Tentando desbloquear rotas...")
+                unblock_routes(graph)
+                path = algorithm(graph, start, goal, transport)
+                if path:
+                    print(f"Caminho encontrado após desbloquear rotas: {' -> '.join(path)}")
+                else:
+                    print(f"Não foi possível encontrar um caminho para {locality.id} mesmo após desbloquear rotas.")
+            update_conditions(graph)
 
 def main():
     loc1 = Locality("A", population=500, urgency=3, accessibility="asfalto")
@@ -65,48 +92,15 @@ def main():
         choice = display_menu()
         
         if choice == 1:
-            start_id = input("Digite a localidade de partida: ")
-            goal_id = input("Digite a localidade de destino: ")
-            start = graph.get_node(start_id)
-            goal = graph.get_node(goal_id)
+            display_graph(graph)
+        
+        elif choice == 2:
             algorithm_choice = int(input("Escolha o algoritmo (1: BFS, 2: DFS, 3: A*, 4: Greedy): "))
             transport_choice = int(input("Escolha o transporte (1: Camião, 2: Drone, 3: Helicóptero): "))
             transport = [truck, drone, helicopter][transport_choice - 1]
-
-            if algorithm_choice == 1:
-                path = bfs(graph, start, goal, transport)
-            elif algorithm_choice == 2:
-                path = dfs(graph, start, goal, transport)
-            elif algorithm_choice == 3:
-                path = a_star(graph, start, goal, transport)
-            elif algorithm_choice == 4:
-                path = greedy_search(graph, start, goal, transport)
-            else:
-                print("Algoritmo inválido.")
-                continue
-
-            if path:
-                print(f"Caminho encontrado: {' -> '.join(path)}")
-            else:
-                print("Nenhum caminho encontrado. Tentando desbloquear rotas...")
-                unblock_routes(graph)
-                if algorithm_choice == 1:
-                    path = bfs(graph, start, goal, transport)
-                elif algorithm_choice == 2:
-                    path = dfs(graph, start, goal, transport)
-                elif algorithm_choice == 3:
-                    path = a_star(graph, start, goal, transport)
-                elif algorithm_choice == 4:
-                    path = greedy_search(graph, start, goal, transport)
-                
-                if path:
-                    print(f"Caminho encontrado após desbloquear rotas: {' -> '.join(path)}")
-                else:
-                    print("Nenhum caminho encontrado mesmo após desbloquear rotas.")
-            update_conditions(graph)
-        
-        elif choice == 2:
-            print("A visualização do grafo não está implementada nesta versão.")
+            algorithms = [bfs, dfs, a_star, greedy_search]
+            algorithm = algorithms[algorithm_choice - 1]
+            deliver_supplies(graph, algorithm, transport)
 
         continue_choice = input("\nDeseja executar outra operação? (s/n): ").lower()
         if continue_choice != 's':

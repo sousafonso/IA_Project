@@ -56,3 +56,10 @@ class Graph:
         if route:
             return route.get_cost()
         return float('inf')
+
+    def display(self):
+        print("\nGrafo de Localidades e Rotas:")
+        for node in self.nodes.values():
+            print(node)
+        for route in self.edges.values():
+            print(f"Rota de {route.origin} para {route.destination}, Distância: {route.distance} km, Pavimento: {route.type_pavement}, Bloqueada: {route.blocked}")

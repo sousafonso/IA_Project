@@ -21,4 +21,4 @@ class Locality:
 
     def __repr__(self):
         supplies_str = ", ".join(str(supply) for supply in self.supplies)
-        return f"Localidade {self.id}, Urgência: {self.urgency}, Necessidades: [{supplies_str}]"
+        return f"Localidade {self.id}, População: {self.population}, Urgência: {self.urgency}, Acessibilidade: {self.accessibility}, Necessidades: [{supplies_str}]"

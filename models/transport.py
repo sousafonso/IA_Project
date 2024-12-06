@@ -46,3 +46,9 @@ class Transport:
         :param distance: Distância percorrida.
         """
         self.current_fuel -= distance
+
+    def refuel(self):
+        """
+        Reabastece o transporte ao seu alcance total de combustível.
+        """
+        self.current_fuel = self.fuel_range
