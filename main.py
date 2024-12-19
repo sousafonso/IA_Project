@@ -1,8 +1,8 @@
 ### `main.py` - Main Execution File
 
 import random
-#import networkx as nx
-#import matplotlib.pyplot as plt
+import networkx as nx
+import matplotlib.pyplot as plt
 from models.locality import Locality
 from models.transport import Transport
 from models.route import Route
@@ -37,7 +37,7 @@ def display_menu():
                 print("Opção inválida. Tente novamente.")
         except ValueError:
             print("Entrada inválida. Por favor, insira um número.")
-'''
+
 def display_graph(graph):
     G = nx.DiGraph()
     for node in graph.nodes.values():
@@ -52,7 +52,7 @@ def display_graph(graph):
     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold', edge_color=edge_colors)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='green')
     plt.show()
-'''
+
 def unblock_routes(graph):
     """
     Tenta desbloquear rotas bloqueadas para garantir que pelo menos uma solução seja encontrada.
