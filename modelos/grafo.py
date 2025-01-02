@@ -43,6 +43,23 @@ class Grafo:
                 neighbors.append(self.nodes[destination])
         return neighbors
 
+    def update_costs_for_vehicle(self, vehicle_speed):
+        """
+        Atualiza os custos das rotas no grafo para refletir o tempo de viagem baseado na velocidade do veículo.
+        :param vehicle_speed: Velocidade média do veículo (km/h).
+        """
+        for route in self.edges.values():
+            route.temp_cost = route.distancia / vehicle_speed  # Calcula o tempo de viagem
+
+    def restore_original_costs(self):
+        """
+        Restaura os custos originais (distâncias) das rotas.
+        """
+        for route in self.edges.values():
+            route.temp_cost = route.distancia
+
+
+
     def display(self):
         print("\nGrafo de Localidades e Rotas:")
         for node in self.nodes.values():

@@ -26,6 +26,6 @@ def bfs(graph, start, goal):
                     route = graph.get_route(current_node, neighbor)  # Obtém a rota
                     if route:  # Verifica se a rota existe
                         new_path = path + [neighbor.nome]  # Adiciona o vizinho ao caminho
-                        queue.append((new_path, total_cost + route.distancia))  # Soma o custo da rota
+                        queue.append((new_path, total_cost + route.temp_cost))  # Soma o custo da rota
 
     return None, None  # Caminho não encontrado
