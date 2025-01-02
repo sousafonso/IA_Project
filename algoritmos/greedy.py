@@ -13,8 +13,12 @@ def greedy_search(graph, start, goal, heuristic, transport):
     """
     open_set = []
     visited = set()
-    heappush(open_set, (heuristic(start, goal, graph), start, []))  # (heurística, nó atual, caminho)
 
+
+    start_node = graph.get_node(start)  # Objeto Localidade para o nó inicial
+    goal_node = graph.get_node(goal)  # Objeto Localidade para o nó objetivo
+
+    heappush(open_set, (heuristic(start_node, goal_node), start, []))  # (valor heurístico, nó atual, caminho)
 
     while open_set:
         _, current, path = heappop(open_set)
@@ -28,6 +32,7 @@ def greedy_search(graph, start, goal, heuristic, transport):
 
         visited.add(current)
 
+
         # Obter os vizinhos do nó atual
         current_node = graph.get_node(current)
         for neighbor in graph.get_neighbors(current_node):
@@ -37,6 +42,7 @@ def greedy_search(graph, start, goal, heuristic, transport):
 
             if neighbor.nome not in visited:
                 heappush(open_set, (heuristic(neighbor.nome, goal, graph), neighbor.nome, path))
+
 
 
     return None  # Caminho não encontrado

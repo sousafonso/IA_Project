@@ -21,6 +21,8 @@ def a_star(graph, start, goal, heuristic,transport):
         if current == goal:
             return path, g_cost[current]  # Caminho e custo encontrados
 
+
+
         for neighbor, cost in graph.get(current, []):
             # Verificar se a rota está bloqueada
             route = graph.get_route(current, neighbor)
