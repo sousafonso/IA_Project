@@ -1,4 +1,4 @@
-def dfs(graph, start, goal):
+def dfs(graph, start, goal, transport, path=None, visited=None):
     """
     Implementa o algoritmo DFS com cálculo do custo total.
     :param graph: Objeto da classe Grafo.
@@ -20,7 +20,7 @@ def dfs(graph, start, goal):
             for neighbor in graph.get_neighbors(current_node):  # Obter vizinhos
                 if neighbor.nome not in visited:
                     route = graph.get_route(current_node, neighbor)  # Obter a rota para o vizinho
-                    if route:
+                    if route.bloqueado and not transport.can_access_route(route):
                         # Explora o próximo nó recursivamente
                         result, cost = dfs_recursive(
                             neighbor.nome, goal, path, visited, total_cost + route.temp_cost

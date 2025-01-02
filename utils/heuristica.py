@@ -1,21 +1,27 @@
-PAVEMENT_FACTORS = {
-    "asfalto": 1.0,
-    "terra": 1.5,
-    "trilha": 2.0,
-}
-
-def heuristic(node, goal):
+def heuristic(node, goal, graph):
     """
-    Calcula a heurística entre o nó atual e o objetivo.
-    :param node: Objeto Localidade atual.
-    :param goal: Objeto Localidade objetivo.
-    :return: Valor heurístico (quanto menor, melhor).
+    Calcula a heurística entre dois nós com base em urgência e acessibilidade.
+    :param node: Nome do nó inicial.
+    :param goal: Nome do nó objetivo.
+    :param graph: Objeto do grafo que contém as localidades.
+    :return: Valor da heurística.
     """
-    # Fator baseado na urgência
-    urgency_factor = abs(node.urgencia - goal.urgencia)
+    # Obter os objetos Localidade para o nó e o objetivo
+    node_obj = graph.get_node(node)
+    goal_obj = graph.get_node(goal)
 
-    # Fator baseado no tipo de pavimento da localidade atual
-    pavement_factor = PAVEMENT_FACTORS.get(node.acessibilidade, 1.0)
+    if not node_obj or not goal_obj:
+        raise ValueError(f"Nós inválidos: {node} ou {goal} não existem no grafo.")
+
+    # Fator de urgência
+    urgency_factor = abs(node_obj.urgencia - goal_obj.urgencia)
+
+    # Penalidade por acessibilidade
+    accessibility_penalty = {
+        "asfalto": 0,
+        "paralelo": 5,
+        "terra": 10
+    }.get(node_obj.acessibilidade, 10)  # Penalidade padrão para pavimentos desconhecidos
 
     # Retorna a heurística como uma combinação ponderada dos fatores
     return urgency_factor * pavement_factor

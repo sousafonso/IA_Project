@@ -1,6 +1,6 @@
 from heapq import heappush, heappop
 
-def a_star(graph, start, goal, heuristic):
+def a_star(graph, start, goal, heuristic,transport):
     """
     Implementa o algoritmo A* com base no custo temporário (tempo de viagem).
     :param graph: Objeto da classe Grafo.
@@ -21,15 +21,16 @@ def a_star(graph, start, goal, heuristic):
         if current == goal:
             return path, g_cost[current]  # Caminho e custo encontrados
 
-        current_node = graph.get_node(current)  # Obter o nó atual
-        if current_node:
-            for neighbor in graph.get_neighbors(current_node):  # Explorar vizinhos
-                route = graph.get_route(current_node, neighbor)  # Obter a rota
-                if route and not route.bloqueado:  # Verificar se a rota não está bloqueada
-                    tentative_g_cost = g_cost[current] + route.temp_cost
-                    if neighbor.nome not in g_cost or tentative_g_cost < g_cost[neighbor.nome]:
-                        g_cost[neighbor.nome] = tentative_g_cost
-                        f_cost = tentative_g_cost + heuristic(neighbor, graph.get_node(goal))
-                        heappush(open_set, (f_cost, neighbor.nome, path))
+        for neighbor, cost in graph.get(current, []):
+            # Verificar se a rota está bloqueada
+            route = graph.get_route(current, neighbor)
+            if route.bloqueado and not transport.can_access_route(route):  # Ignorar rotas bloqueadas
+                continue
+            tentative_g_cost = g_cost[current] + route.temp_cost
+            if neighbor not in g_cost or tentative_g_cost < g_cost[neighbor]:
+                g_cost[neighbor] = tentative_g_cost
+                f_cost = tentative_g_cost + heuristic(neighbor, goal)
+                heappush(open_set, (f_cost, neighbor, path))
+
 
     return None, None  # Caminho não encontrado
