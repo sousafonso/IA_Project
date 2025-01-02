@@ -13,6 +13,7 @@ class Rota:
         self.origem = origem  # Localidade de origem
         self.destino = destino  # Localidade de destino
         self.distancia = distancia  # Distância entre as localidades
+        self.temp_cost = distancia
         self.pavimento = pavimento  # Tipo de pavimento
         self.restricoes = restricoes if restricoes else []  # Restrições de acesso
         self.bloqueado = False  # Indica se a rota está bloqueada

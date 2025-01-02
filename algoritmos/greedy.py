@@ -2,6 +2,7 @@ from heapq import heappush, heappop
 
 def greedy_search(graph, start, goal, heuristic, transport):
     """
+
     Implementa o algoritmo Greedy Search com melhorias.
     :param graph: Objeto do grafo.
     :param start: Nó inicial.
@@ -13,6 +14,7 @@ def greedy_search(graph, start, goal, heuristic, transport):
     open_set = []
     visited = set()
     heappush(open_set, (heuristic(start, goal, graph), start, []))  # (heurística, nó atual, caminho)
+
 
     while open_set:
         _, current, path = heappop(open_set)
@@ -35,6 +37,7 @@ def greedy_search(graph, start, goal, heuristic, transport):
 
             if neighbor.nome not in visited:
                 heappush(open_set, (heuristic(neighbor.nome, goal, graph), neighbor.nome, path))
+
 
     return None  # Caminho não encontrado
 

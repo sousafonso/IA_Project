@@ -1,5 +1,6 @@
 from heapq import heappush, heappop
 
+
 def uniform_cost_search(graph, start, goal, transport):
     """
     Implementa o algoritmo de Custo Uniforme.
@@ -14,14 +15,15 @@ def uniform_cost_search(graph, start, goal, transport):
     visited = set()
 
     while priority_queue:
-        cost, current, path = heappop(priority_queue)
-        path = path + [current]
+        cost, current, path = heappop(priority_queue)  # Nó com menor custo
+        path = path + [current]  # Atualiza o caminho
 
         if current == goal:
-            return path  # Caminho encontrado
+            return path, cost  # Caminho e custo encontrados
 
         if current not in visited:
-            visited.add(current)
+            visited.add(current)  # Marca o nó como visitado
+            current_node = graph.get_node(current)  # Obter o nó atual
 
             current_node = graph.get_node(current)
             for neighbor in graph.get_neighbors(current_node):

@@ -23,5 +23,5 @@ def heuristic(node, goal, graph):
         "terra": 10
     }.get(node_obj.acessibilidade, 10)  # Penalidade padrão para pavimentos desconhecidos
 
-    # Soma dos fatores
-    return urgency_factor + accessibility_penalty
+    # Retorna a heurística como uma combinação ponderada dos fatores
+    return urgency_factor * pavement_factor
