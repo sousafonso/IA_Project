@@ -42,7 +42,7 @@ def display_main_menu(graph):
             print("Entrada inválida. Por favor, insira um número.")
 
 def visualize_graph(graph):
-    clear_screen()
+    """clear_screen()"""
     print("\nVisualizando o Grafo:")
     visualize_graph_with_image(graph)
     input("\nPressione Enter para voltar ao menu...")
@@ -54,7 +54,7 @@ def display_algorithm_menu(graph):
     Exibe o menu para escolha de algoritmos.
     """
     while True:
-        clear_screen()
+        """clear_screen()"""
         print("\nEscolha o Algoritmo de Procura:")
         print("1. BFS")
         print("2. DFS")
@@ -89,13 +89,23 @@ def execute_algorithm(algorithm, graph):
     :param algorithm: Nome do algoritmo.
     :param graph: Objeto Grafo.
     """
-    clear_screen()
+    """clear_screen()"""
     print(f"\nExecutando {algorithm}...")
     start = input("Digite o nó de início: ")
     goal = input("Digite o nó objetivo: ")
 
+
+    if not graph.get_node(start):
+        print(f"O nó '{start}' não existe no grafo.")
+        input("\nPressione Enter para voltar ao menu...")
+        return
+    if not graph.get_node(goal):
+        print(f"O nó '{goal}' não existe no grafo.")
+        input("\nPressione Enter para voltar ao menu...")
+        return
+
     if algorithm == "BFS":
-        result = bfs(graph, start, goal)
+        path,cost = bfs(graph, start, goal)
     elif algorithm == "DFS":
         result = dfs(graph, start, goal)
     elif algorithm == "A*":
@@ -108,9 +118,10 @@ def execute_algorithm(algorithm, graph):
         print("Algoritmo não reconhecido.")
         return
 
-    clear_screen()
-    if result:
-        print(f"Caminho encontrado: {' -> '.join(result)}")
+    """clear_screen()"""
+    if path:
+        print(f"Caminho encontrado: {' -> '.join(path)}")
+        print(f"Custo total: {cost} km")
     else:
         print("Não foi possível encontrar um caminho.")
 
