@@ -1,30 +1,36 @@
-def dfs(graph, start, goal, path=None, visited=None):
+def dfs(graph, start, goal):
     """
-    Implementa o algoritmo DFS com melhorias.
-    :param graph: Dicionário representando o grafo {nó: [vizinhos]}.
-    :param start: Nó inicial.
-    :param goal: Nó objetivo.
-    :param path: Caminho atual (usado internamente na recursão).
-    :param visited: Conjunto de nós visitados.
-    :return: Lista representando o caminho do início ao objetivo, ou None se não for possível.
+    Implementa o algoritmo DFS com cálculo do custo total.
+    :param graph: Objeto da classe Grafo.
+    :param start: Identificador do nó inicial (string).
+    :param goal: Identificador do nó objetivo (string).
+    :return: Tuplo (caminho, custo total) ou (None, None) se não for possível.
     """
-    if path is None:
-        path = []
-    if visited is None:
-        visited = set()
+    def dfs_recursive(current, goal, path, visited, total_cost):
+        # Adiciona o nó atual ao caminho
+        path.append(current)
+        visited.add(current)
 
-    path.append(start)
-    visited.add(start)
+        # Verifica se o nó objetivo foi alcançado
+        if current == goal:
+            return path, total_cost  # Caminho e custo encontrados
 
-    if start == goal:
-        return path  # Caminho encontrado
+        current_node = graph.get_node(current)
+        if current_node:
+            for neighbor in graph.get_neighbors(current_node):  # Obter vizinhos
+                if neighbor.nome not in visited:
+                    route = graph.get_route(current_node, neighbor)  # Obter a rota para o vizinho
+                    if route:
+                        # Explora o próximo nó recursivamente
+                        result, cost = dfs_recursive(
+                            neighbor.nome, goal, path, visited, total_cost + route.temp_cost
+                        )
+                        if result:  # Se encontrar o caminho, retorna
+                            return result, cost
 
-    for neighbor, _ in graph.get(start, []):
-        if neighbor not in visited:
-            result = dfs(graph, neighbor, goal, path, visited)
-            if result:
-                return result
+        # Retrocede se não encontrar o caminho
+        path.pop()
+        return None, None
 
-    path.pop()  # Retrocede
-    return None  # Caminho não encontrado
-    
+    # Inicializa os parâmetros
+    return dfs_recursive(start, goal, [], set(), 0)

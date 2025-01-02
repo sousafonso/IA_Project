@@ -1,13 +1,21 @@
-def heuristic(node, goal):
-    # Fator de urgência: Quanto maior a urgência do nó objetivo, menor o custo estimado.
-    urgency_factor = abs(node["urgency"] - goal["urgency"])
-    
-    # Penalidade por acessibilidade: Nós com pavimento mais difícil têm custo maior.
-    accessibility_penalty = {
-        "asfalto": 0,
-        "paralelo": 5,
-        "terra": 10
-    }.get(node["accessibility"], 10)  # Penalidade padrão para pavimentos desconhecidos
+PAVEMENT_FACTORS = {
+    "asfalto": 1.0,
+    "terra": 1.5,
+    "trilha": 2.0,
+}
 
-    # Soma dos fatores
-    return urgency_factor + accessibility_penalty
+def heuristic(node, goal):
+    """
+    Calcula a heurística entre o nó atual e o objetivo.
+    :param node: Objeto Localidade atual.
+    :param goal: Objeto Localidade objetivo.
+    :return: Valor heurístico (quanto menor, melhor).
+    """
+    # Fator baseado na urgência
+    urgency_factor = abs(node.urgencia - goal.urgencia)
+
+    # Fator baseado no tipo de pavimento da localidade atual
+    pavement_factor = PAVEMENT_FACTORS.get(node.acessibilidade, 1.0)
+
+    # Retorna a heurística como uma combinação ponderada dos fatores
+    return urgency_factor * pavement_factor

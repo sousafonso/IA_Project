@@ -10,6 +10,9 @@ from algoritmos.custo_uniforme import uniform_cost_search
 from utils.heuristica import heuristic
 from utils.visualizacao import visualize_graph_with_image
 
+"""Tipo de pavimento só importa no camião"""
+"""Quantidade de mantimentos e combustível"""
+
 
 def clear_screen():
     """
@@ -42,19 +45,17 @@ def display_main_menu(graph):
             print("Entrada inválida. Por favor, insira um número.")
 
 def visualize_graph(graph):
-    """clear_screen()"""
+    clear_screen()
     print("\nVisualizando o Grafo:")
     visualize_graph_with_image(graph)
     input("\nPressione Enter para voltar ao menu...")
-
-
 
 def display_algorithm_menu(graph):
     """
     Exibe o menu para escolha de algoritmos.
     """
     while True:
-        """clear_screen()"""
+        clear_screen()
         print("\nEscolha o Algoritmo de Procura:")
         print("1. BFS")
         print("2. DFS")
@@ -89,11 +90,10 @@ def execute_algorithm(algorithm, graph):
     :param algorithm: Nome do algoritmo.
     :param graph: Objeto Grafo.
     """
-    """clear_screen()"""
+    clear_screen()
     print(f"\nExecutando {algorithm}...")
-    start = input("Digite o nó de início: ")
-    goal = input("Digite o nó objetivo: ")
-
+    start = input("Digite o nó de início: ").strip()
+    goal = input("Digite o nó objetivo: ").strip()
 
     if not graph.get_node(start):
         print(f"O nó '{start}' não existe no grafo.")
@@ -104,26 +104,42 @@ def execute_algorithm(algorithm, graph):
         input("\nPressione Enter para voltar ao menu...")
         return
 
-    if algorithm == "BFS":
-        path,cost = bfs(graph, start, goal)
-    elif algorithm == "DFS":
-        result = dfs(graph, start, goal)
-    elif algorithm == "A*":
-        result = a_star(graph, start, goal, heuristic)
-    elif algorithm == "Greedy Search":
-        result = greedy_search(graph, start, goal, heuristic)
-    elif algorithm == "Custo Uniforme":
-        result = uniform_cost_search(graph, start, goal)
-    else:
-        print("Algoritmo não reconhecido.")
-        return
+    veiculos = {"camião": 60, "drone": 40, "helicóptero": 120}
+    results = []
 
-    """clear_screen()"""
-    if path:
-        print(f"Caminho encontrado: {' -> '.join(path)}")
-        print(f"Custo total: {cost} km")
+    for vehicle, speed in veiculos.items():
+        print(f"\nCalculando o melhor caminho para o veículo: {vehicle}")
+        graph.update_costs_for_vehicle(speed)
+
+        if algorithm == "BFS":
+            path, cost = bfs(graph, start, goal)
+        elif algorithm == "DFS":
+            path, cost = dfs(graph, start, goal)
+        elif algorithm == "A*":
+            path, cost = a_star(graph, start, goal, heuristic)
+        elif algorithm == "Greedy Search":
+            path, cost = greedy_search(graph, start, goal, heuristic)
+        elif algorithm == "Custo Uniforme":
+            path, cost = uniform_cost_search(graph, start, goal)
+        else:
+            print("Algoritmo não reconhecido.")
+            return
+
+        if path:
+            results.append((vehicle, path, cost))
+            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {cost} horas")
+        else:
+            print(f"Não foi possível encontrar um caminho para o veículo: {vehicle.capitalize()}")
+
+        graph.restore_original_costs()
+
+    if results:
+        best_vehicle = min(results, key=lambda x: x[2])  # Ordenar por custo total
+        print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Caminho: {' -> '.join(best_vehicle[1])}, Custo: {best_vehicle[2]} horas")
     else:
-        print("Não foi possível encontrar um caminho.")
+        print("\nNenhum veículo conseguiu encontrar um caminho válido.")
+
+    input("\nPressione Enter para voltar ao menu...")
 
 if __name__ == "__main__":
     # Criar localidades
