@@ -1,6 +1,6 @@
 from heapq import heappush, heappop
 
-def a_star(graph, start, goal, heuristic):
+def a_star(graph, start, goal, heuristic,transport):
     """
     Implementa o algoritmo A* com melhorias.
     :param graph: Dicionário {nó: [(vizinho, custo)]}.
@@ -22,6 +22,10 @@ def a_star(graph, start, goal, heuristic):
             return path  # Caminho encontrado
 
         for neighbor, cost in graph.get(current, []):
+            # Verificar se a rota está bloqueada
+            route = graph.get_route(current, neighbor)
+            if route.bloqueado and not transport.can_access_route(route):  # Ignorar rotas bloqueadas
+                continue
             tentative_g_cost = g_cost[current] + cost
             if neighbor not in g_cost or tentative_g_cost < g_cost[neighbor]:
                 g_cost[neighbor] = tentative_g_cost

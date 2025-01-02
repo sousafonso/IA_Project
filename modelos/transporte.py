@@ -27,14 +27,17 @@ class Transporte:
             base_cost *= 1.5  # Penalidade para condições difíceis
         return base_cost
 
+
     def can_access_route(self, route):
         """
         Verifica se o transporte pode acessar a rota com base nas restrições da rota.
-
-        :param route: Objeto da classe Route.
+        :param route: Objeto da classe Rota.
         :return: True se o transporte puder acessar a rota, False caso contrário.
         """
-        return self.tipo not in route.restrictions
+        if route.bloqueado and self.tipo in route.restricoes:
+            return False  # Transporte está restrito nesta rota
+        return True
+
 
     def can_complete_route(self, distancia):
         """

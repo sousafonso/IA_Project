@@ -1,7 +1,9 @@
 import os
+import random
 from modelos.localidade import Localidade
 from modelos.rota import Rota
 from modelos.grafo import Grafo
+from modelos.transporte import Transporte
 from algoritmos.bfs import bfs
 from algoritmos.dfs import dfs
 from algoritmos.a_star import a_star
@@ -55,6 +57,7 @@ def display_algorithm_menu(graph):
     """
     while True:
         """clear_screen()"""
+        simulate_events(graph)
         print("\nEscolha o Algoritmo de Procura:")
         print("1. BFS")
         print("2. DFS")
@@ -103,17 +106,22 @@ def execute_algorithm(algorithm, graph):
         print(f"O nó '{goal}' não existe no grafo.")
         input("\nPressione Enter para voltar ao menu...")
         return
+    
+    transport = Transporte(tipo="camião", capacidade=1000, velocidade=80, autonomia=500)
+
+    path = None
+    cost = None
 
     if algorithm == "BFS":
-        path,cost = bfs(graph, start, goal)
+        path,cost = bfs(graph, start, goal, transport)
     elif algorithm == "DFS":
-        result = dfs(graph, start, goal)
+        path = dfs(graph, start, goal, transport)
     elif algorithm == "A*":
-        result = a_star(graph, start, goal, heuristic)
+        path = a_star(graph, start, goal, heuristic, transport)
     elif algorithm == "Greedy Search":
-        result = greedy_search(graph, start, goal, heuristic)
+        path = greedy_search(graph, start, goal, heuristic, transport)
     elif algorithm == "Custo Uniforme":
-        result = uniform_cost_search(graph, start, goal)
+        path = uniform_cost_search(graph, start, goal, transport)
     else:
         print("Algoritmo não reconhecido.")
         return
@@ -121,9 +129,39 @@ def execute_algorithm(algorithm, graph):
     """clear_screen()"""
     if path:
         print(f"Caminho encontrado: {' -> '.join(path)}")
-        print(f"Custo total: {cost} km")
+        if cost is not None:
+            print(f"Custo total: {cost} km")
     else:
         print("Não foi possível encontrar um caminho.")
+
+
+def simulate_events(graph):
+    """
+    Simula eventos aleatórios, como bloqueio de rotas por tempestades ou marcação como estrada bloqueada,
+    além de alteração de urgências nas localidades.
+    :param graph: Objeto do grafo.
+    """
+    print("\n--- Simulação de Eventos Aleatórios ---")
+
+    # Bloquear rotas aleatoriamente devido a imprevistos
+    for (origem, destino), route in graph.edges.items():
+        imprevisto = random.choice(["tempestade", "estrada bloqueada", None])  # Escolhe um evento aleatório
+        if imprevisto == "tempestade" and random.random() < 0.2:  # 20% de chance para tempestade
+            route.update_blockage("tempestade")
+            print(f"Rota de {origem} para {destino} foi bloqueada devido a uma tempestade.")
+        elif imprevisto == "estrada bloqueada" and random.random() < 0.3:  # 30% de chance para estrada bloqueada
+            route.update_blockage("estrada bloqueada")
+            print(f"Rota de {origem} para {destino} foi marcada como 'estrada bloqueada'.")
+
+    # Alterar urgência de localidades aleatoriamente
+    for node in graph.nodes.values():
+        if random.random() < 0.4:  # 40% de chance de mudar a urgência
+            old_urgency = node.urgencia
+            node.urgencia = random.randint(1, 5)  # Nova urgência entre 1 e 5
+            print(f"Urgência de {node.nome} mudou de {old_urgency} para {node.urgencia}.")
+
+    print("--- Fim da Simulação ---\n")
+
 
 if __name__ == "__main__":
     # Criar localidades
@@ -132,20 +170,53 @@ if __name__ == "__main__":
     loc_c = Localidade("Fafe", populacao=800, urgencia=2, acessibilidade="trilha")
     loc_d = Localidade("Vizela", populacao=1000, urgencia=1, acessibilidade="asfalto")
     loc_e = Localidade("Ponte de Lima", populacao=200, urgencia=4, acessibilidade="terra")
+    loc_f = Localidade("Porto", populacao=214349, urgencia=2, acessibilidade="asfalto")
+    loc_g = Localidade("Lisboa", populacao=504718, urgencia=1, acessibilidade="paralelo")
+    loc_h = Localidade("Coimbra", populacao=143396, urgencia=4, acessibilidade="terra")
+    loc_i = Localidade("Aveiro", populacao=78000, urgencia=3, acessibilidade="asfalto")
+    loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra")
+    loc_k = Localidade("Faro", populacao=118000, urgencia=3, acessibilidade="asfalto")
 
     # Criar o grafo
     graph = Grafo()
 
     # Adicionar localidades ao grafo
-    for loc in [loc_a, loc_b, loc_c, loc_d, loc_e]:
+    for loc in [loc_a, loc_b, loc_c, loc_d, loc_e,loc_f, loc_g,loc_h,loc_i,loc_j,loc_k]:
         graph.add_node(loc)
 
     # Adicionar rotas entre localidades
     graph.add_edge("Guimarães", "Braga", 50, "asfalto", restricoes=["camião", "drone"])
+    graph.add_edge("Braga", "Guimarães", 50, "asfalto", restricoes=["camião", "drone"])
     graph.add_edge("Guimarães", "Fafe", 70, "terra", restricoes=["drone"])
+    graph.add_edge("Fafe", "Guimarães", 70, "terra", restricoes=["drone"])
     graph.add_edge("Braga", "Vizela", 40, "trilha", restricoes=["helicóptero"])
+    graph.add_edge("Vizela", "Braga", 40, "trilha", restricoes=["helicóptero"])
     graph.add_edge("Fafe", "Ponte de Lima", 60, "terra", restricoes=["camião"])
+    graph.add_edge("Ponte de Lima", "Fafe", 60, "terra", restricoes=["camião"])
     graph.add_edge("Vizela", "Ponte de Lima", 80, "asfalto", restricoes=[])
+    graph.add_edge("Ponte de Lima", "Vizela", 80, "asfalto", restricoes=[])
+    graph.add_edge("Porto", "Guimarães", 70, "asfalto", restricoes=[])
+    graph.add_edge("Guimarães", "Porto", 70, "asfalto", restricoes=[])
+    graph.add_edge("Porto", "Braga", 60, "asfalto", restricoes=["drone"])
+    graph.add_edge("Braga", "Porto", 60, "asfalto", restricoes=["drone"])
+    graph.add_edge("Lisboa", "Coimbra", 200, "terra", restricoes=["camião"])
+    graph.add_edge("Coimbra", "Lisboa", 200, "terra", restricoes=["camião"])
+    graph.add_edge("Coimbra", "Aveiro", 50, "paralelo", restricoes=[])
+    graph.add_edge("Aveiro", "Coimbra", 50, "paralelo", restricoes=[])
+    graph.add_edge("Aveiro", "Braga", 120, "asfalto", restricoes=["camião"])
+    graph.add_edge("Braga", "Aveiro", 120, "asfalto", restricoes=["camião"])
+    graph.add_edge("Ponte de Lima", "Lisboa", 365, "paralelo", restricoes=["drone"])
+    graph.add_edge("Lisboa", "Ponte de Lima", 365, "paralelo", restricoes=["drone"])
+    graph.add_edge("Aveiro", "Porto", 70, "asfalto", restricoes=[]) 
+    graph.add_edge("Porto", "Aveiro", 70, "asfalto", restricoes=[]) 
+    graph.add_edge("Lisboa", "Évora", 130, "terra", restricoes=["camião"])
+    graph.add_edge("Évora", "Lisboa", 130, "terra", restricoes=["camião"])
+    graph.add_edge("Évora", "Faro", 200, "asfalto", restricoes=[])
+    graph.add_edge("Faro", "Évora", 200, "asfalto", restricoes=[])
+    graph.add_edge("Faro", "Lisboa", 280, "paralelo", restricoes=[])
+    graph.add_edge("Lisboa", "Faro", 280, "paralelo", restricoes=[])
+    graph.add_edge("Évora", "Porto", 400, "asfalto", restricoes=[])
+    graph.add_edge("Porto", "Évora", 400, "asfalto", restricoes=[])
 
     # Exibir o menu principal
     display_main_menu(graph)
