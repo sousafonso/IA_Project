@@ -1,10 +1,4 @@
 class Rota:
-    PAVEMENT_MULTIPLIER = {
-        "asfalto": 1.0,
-        "terra": 1.5,
-        "trilha": 2.0,
-    }
-
     def __init__(self, numero, origem, destino, distancia, pavimento, restricoes=None):
         """
         :restrições: Lista de tipos de transporte que não podem acessar esta rota.
@@ -41,13 +35,8 @@ class Rota:
         return transport_type not in self.restricoes
 
     def get_cost(self):
-        """
-        Calcula o custo da rota com base na distância e no tipo de pavimento.
-        
-        :return: O custo total da rota.
-        """
-        multiplier = self.PAVEMENT_MULTIPLIER.get(self.pavimento, 1.0)
-        return self.distancia * multiplier
+
+        return self.distancia
 
     def calculate_time(self, speed):
         """
