@@ -12,16 +12,19 @@ class Rota:
         self.restricoes = restricoes if restricoes else []  # Restrições de acesso
         self.bloqueado = False  # Indica se a rota está bloqueada
 
+
     def update_blockage(self, blockage):
         """
-        Atualiza o estado de bloqueio da rota com base em uma condição.
-        
-        :param blockage: Razão para o bloqueio (e.g., 'deslizamento', 'neve').
+        Atualiza o estado de bloqueio da rota com base em um evento.
+        :param blockage: Tipo de bloqueio (e.g., 'tempestade', 'estrada bloqueada').
         """
-        if blockage in ["deslizamento", "neve", "acidente"]:
-            self.bloqueado = True
-        else:
-            self.bloqueado = False
+        self.bloqueado = True
+        self.restricoes.append(blockage)
+        if blockage == "tempestade":
+            self.restricoes.extend(["drone","helicóptero"])  # Veículos terrestres são bloqueados
+        elif blockage == "estrada bloqueada":
+            self.restricoes.append("camião")  # Apenas camiões são bloqueados
+
 
     def is_accessible_by_transport(self, transport_type):
         """

@@ -1,6 +1,6 @@
 from collections import deque
 
-def bfs(graph, start, goal):
+def bfs(graph, start, goal, transport):
     """
     Implementa o algoritmo BFS para encontrar o menor caminho entre dois nós e calcular o custo total.
     :param graph: Objeto da classe Grafo.
@@ -24,8 +24,11 @@ def bfs(graph, start, goal):
             if current_node:
                 for neighbor in graph.get_neighbors(current_node):  # Obter vizinhos
                     route = graph.get_route(current_node, neighbor)  # Obtém a rota
-                    if route:  # Verifica se a rota existe
-                        new_path = path + [neighbor.nome]  # Adiciona o vizinho ao caminho
-                        queue.append((new_path, total_cost + route.temp_cost))  # Soma o custo da rota
+
+                    if route.bloqueado and not transport.can_access_route(route):
+                        continue  # ignorar rotas inacessíveis
+                    new_path = path + [neighbor.nome]  # Adiciona o vizinho ao caminho
+                    queue.append((new_path, total_cost + route.distancia))  # Soma o custo da rota
+
 
     return None, None  # Caminho não encontrado
