@@ -20,7 +20,17 @@ class Grafo:
         :return: Objeto Localidade.
         """
         return self.nodes.get(nome)
-    
+
+    def get_route(self, origem, destino):
+        """
+        Obtém a rota entre duas localidades.
+        :param origem: Objeto da classe Localidade (origem).
+        :param destino: Objeto da classe Localidade (destino).
+        :return: Objeto Rota ou None se não existir.
+        """
+        return self.edges.get((origem.nome, destino.nome))
+
+
     def get_neighbors(self, node):
         """
         Retorna os vizinhos de um nó.
@@ -29,7 +39,7 @@ class Grafo:
         """
         neighbors = []
         for (origin, destination), route in self.edges.items():
-            if origin == node.id and not route.blocked:  # Verifica se a rota não está bloqueada
+            if origin == node.nome and not route.bloqueado:  # Verifica se a rota não está bloqueada
                 neighbors.append(self.nodes[destination])
         return neighbors
 

@@ -2,30 +2,30 @@ from collections import deque
 
 def bfs(graph, start, goal):
     """
-    Implementa o algoritmo BFS para encontrar o menor caminho entre dois nós.
+    Implementa o algoritmo BFS para encontrar o menor caminho entre dois nós e calcular o custo total.
     :param graph: Objeto da classe Grafo.
     :param start: Identificador do nó inicial (string).
     :param goal: Identificador do nó objetivo (string).
-    :return: Lista representando o caminho do início ao objetivo, ou None se não for possível.
+    :return: Tuplo (caminho, custo total) ou (None, None) se não for possível.
     """
-    visited = set()  # Conjunto de nós já visitados
-    queue = deque([[start]])  # Fila que contém caminhos em vez de nós únicos
+    visited = set()  # Conjunto de nós visitados
+    queue = deque([([start], 0)])  # Fila que contém caminhos e seus custos ([(caminho, custo)])
 
     while queue:
-        path = queue.popleft()  # Obtém o caminho da frente da fila
+        path, total_cost = queue.popleft()  # Remove o caminho da frente da fila
         node_id = path[-1]  # Último nó no caminho atual
 
         if node_id == goal:
-            return path  # Caminho encontrado
+            return path, total_cost  # Caminho e custo encontrados
 
         if node_id not in visited:
-            visited.add(node_id)
-            # Obter o nó atual e seus vizinhos
-            current_node = graph.get_node(node_id)
+            visited.add(node_id)  # Marca o nó como visitado
+            current_node = graph.get_node(node_id)  # Obtém o nó atual
             if current_node:
-                for neighbor in graph.get_neighbors(current_node):
-                    new_path = list(path)  # Cria um novo caminho baseado no atual
-                    new_path.append(neighbor.nome)  # Adiciona o vizinho ao caminho
-                    queue.append(new_path)
+                for neighbor in graph.get_neighbors(current_node):  # Obter vizinhos
+                    route = graph.get_route(current_node, neighbor)  # Obtém a rota
+                    if route:  # Verifica se a rota existe
+                        new_path = path + [neighbor.nome]  # Adiciona o vizinho ao caminho
+                        queue.append((new_path, total_cost + route.distancia))  # Soma o custo da rota
 
-    return None  # Caminho não encontrado
+    return None, None  # Caminho não encontrado
