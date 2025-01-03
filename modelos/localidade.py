@@ -10,11 +10,11 @@ class Localidade:
         self.urgencia = urgencia  
         self.acessibilidade = acessibilidade  
         self.reabastecimento = reabastecimento  
-        self.mantimentos = []  
+        self.mantimentos = 0  
 
-    def add_mantimento(self, nome, quantidade):
+    def add_mantimento(self, quantidade):
 
-        self.mantimentos.append({"nome": nome, "quantidade": quantidade})
+        self.mantimentos += quantidade
 
     def __repr__(self):
 
