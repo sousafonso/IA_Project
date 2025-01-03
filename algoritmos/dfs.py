@@ -52,7 +52,7 @@ def dfs(graph, start, transport):
             nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
             if nearest_reabastecimento:
                 print(f"Dirigindo-se ao reabastecimento mais próximo: {nearest_reabastecimento}.")
-                tempo_total += (distancia / transport.velocidade)
+                tempo_total += (distancia / transport.velocidade) + 1
                 carga_atual = transport.capacidade
                 autonomia_restante = transport.autonomia
                 caminho_completo.append(nearest_reabastecimento)
