@@ -1,6 +1,10 @@
 class Localidade:
     def __init__(self, nome, populacao, urgencia, acessibilidade, reabastecimento=False):
 
+        if not (1 <= urgencia <= 10):
+            raise ValueError("A urgência deve ser um valor entre 1 e 10.")
+
+
         self.nome = nome  # Identificador da localidade
         self.populacao = populacao  # População residente
         self.urgencia = urgencia  # Urgência da localidade
