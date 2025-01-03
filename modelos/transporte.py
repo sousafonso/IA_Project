@@ -10,6 +10,12 @@ class Transporte:
     def getVelocidade(self):
         return self.velocidade
 
+    def getCapacidade(self):
+        return self.capacidade
+    
+    def getAutonomia(self):
+        return self.autonomia
+
     def carregar(self, carga):
         if self.carga_atual + carga > self.capacidade:
             raise ValueError("Capacidade máxima excedida!")

@@ -12,10 +12,6 @@ from algoritmos.custo_uniforme import uniform_cost_search
 from utils.heuristica import heuristic
 from utils.visualizacao import visualize_graph_with_image
 
-"""Tipo de pavimento só importa no camião"""
-"""Quantidade de mantimentos e combustível"""
-
-
 def clear_screen():
     """
     Limpa o terminal para que o menu anterior desapareça.
@@ -128,10 +124,10 @@ def execute_algorithm(algorithm, graph):
             path, cost = bfs(graph, start, transporte)
         elif algorithm == "DFS":
             path, cost = dfs(graph, start, transporte)
-       # elif algorithm == "A*":
-       #     path, cost = a_star(graph, start, goal, heuristic, transporte)
-       # elif algorithm == "Greedy Search":
-       #     path, cost = greedy_search(graph, start, goal, heuristic, transporte)
+        elif algorithm == "A*":
+            path, cost = a_star(graph, start, heuristic, transporte)
+        elif algorithm == "Greedy Search":
+            path, cost = greedy_search(graph, start, transporte, heuristic)
         elif algorithm == "Custo Uniforme":
             path, cost = uniform_cost_search(graph, start, transporte)
         else:
@@ -199,7 +195,8 @@ def simulate_events(graph, reduce_probability=True):
     for node in graph.nodes.values():
         if random.random() < 0.2:  # 20% de chance de mudar a urgência
             old_urgency = node.urgencia
-            node.urgencia = random.randint(1, 5)  # Nova urgência entre 1 e 5
+            new_urgency = random.randint(1, 10)
+            node.urgencia = max(1, min(10, new_urgency))  # Nova urgência entre 1 e 5
             alterations.append(f"Urgência de {node.nome} mudou de {old_urgency} para {node.urgencia}.")
 
     print("\n--- Fim da Simulação ---")

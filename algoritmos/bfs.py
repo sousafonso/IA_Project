@@ -59,7 +59,7 @@ def bfs(graph, start, transport):
         if (autonomia_restante <= 0 or carga_atual == 0):
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
-                tempo_total += 1
+                tempo_total += 3
                 autonomia_restante = transport.autonomia
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
             else:
