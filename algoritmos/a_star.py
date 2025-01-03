@@ -10,13 +10,13 @@ def a_star(graph, start, heuristic, transport):
     :param heuristic: Função heurística que estima o custo até o objetivo.
     :return: Tuplo (caminho completo, custo total).
     """
-    open_set = []  # Fila de prioridade
-    heappush(open_set, (0, start, transport.capacidade, transport.autonomia, []))  # (f_cost, nó atual, carga, autonomia, caminho atual)
+    open_set = []  
+    heappush(open_set, (0, start, transport.capacidade, transport.autonomia, []))  
 
-    g_cost = {start: 0}  # Custo do início até cada nó
-    visited = set()  # Localidades já visitadas
+    g_cost = {start: 0}  
+    visited = set()  
     localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0}
-    caminho_completo = []  # Caminho percorrido completo
+    caminho_completo = []  
     total_entregue = 0
 
     def find_nearest_reabastecimento(current_node):
@@ -42,24 +42,21 @@ def a_star(graph, start, heuristic, transport):
                     if route:
                         heappush(pq, (cost + route.distancia, neighbor.nome))
 
-        return None, float('inf')  # Nenhum reabastecimento encontrado
+        return None, float('inf')  
 
     while open_set:
         f_cost, current, carga_atual, autonomia_restante, path = heappop(open_set)
         path = path + [current]
         caminho_completo.append(current)
 
-        # Evitar revisitar localidades
         if current in visited:
             continue
         visited.add(current)
 
-        # Localidade atual
         current_node = graph.get_node(current)
         if not current_node:
             continue
 
-        # Entregar mantimentos
         if current_node.mantimentos > 0 and current in localidades_restantes:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
@@ -69,12 +66,11 @@ def a_star(graph, start, heuristic, transport):
                 localidades_restantes.remove(current)
             print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restam {current_node.mantimentos}.")
 
-        # Reabastecer se necessário
         if autonomia_restante <= 0 or carga_atual <= 0:
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
                 autonomia_restante = transport.autonomia
-                f_cost += 3  # Adiciona custo de tempo para reabastecimento
+                f_cost += 3  
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
             else:
                 nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
@@ -89,16 +85,15 @@ def a_star(graph, start, heuristic, transport):
                     ))
                 continue
 
-        # Verificar se todas as localidades foram atendidas
+       
         if not localidades_restantes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, f_cost
 
-        # Explorar vizinhos
+        
         for neighbor in graph.get_neighbors(current_node):
             route = graph.get_route(current_node, neighbor)
 
-            # Ignorar rotas bloqueadas, mas guardar como fallback
             if route and (route.bloqueado or not transport.can_access_route(route)):
                 continue
 

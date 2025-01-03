@@ -99,7 +99,6 @@ def execute_algorithm(algorithm, graph):
         input("\nPressione Enter para voltar ao menu...")
         return
     
-    # Simular eventos no grafo
     simulated_changes = simulate_events(graph, reduce_probability=True)
     print("\n--- Alterações Iniciais ---")
     for change in simulated_changes:
@@ -114,10 +113,9 @@ def execute_algorithm(algorithm, graph):
     results = []
     for vehicle, transporte in veiculos.items():
         print(f"\nCalculando o melhor caminho para o veículo: {vehicle}")
-        graph_state_backup = {node.nome: node.mantimentos for node in graph.nodes.values()}  # Backup do estado do grafo
+        graph_state_backup = {node.nome: node.mantimentos for node in graph.nodes.values()}  
         graph.update_costs_for_vehicle(transporte.getVelocidade())
 
-        # Alterações em cada nó visitado
         path = []
 
         if algorithm == "BFS":
@@ -174,16 +172,15 @@ def simulate_events(graph, reduce_probability=True):
 
     print("\n--- Simulação de Eventos Aleatórios ---")
 
-    # Bloquear rotas aleatoriamente devido a imprevistos
     for (origem, destino), route in graph.edges.items():
         if reduce_probability:
-            prob_tempestade = 0.1  # 10% de chance
-            prob_estrada = 0.15  # 15% de chance
+            prob_tempestade = 0.1  
+            prob_estrada = 0.15  
         else:
             prob_tempestade = 0.2
             prob_estrada = 0.3
 
-        imprevisto = random.choice(["tempestade", "estrada bloqueada", None])  # Escolhe um evento aleatório
+        imprevisto = random.choice(["tempestade", "estrada bloqueada", None])  
         if imprevisto == "tempestade" and random.random() < prob_tempestade:
             route.update_blockage("tempestade")
             alterations.append(f"Rota de {origem} para {destino} foi bloqueada devido a uma tempestade.")
@@ -191,12 +188,11 @@ def simulate_events(graph, reduce_probability=True):
             route.update_blockage("estrada bloqueada")
             alterations.append(f"Rota de {origem} para {destino} foi marcada como 'estrada bloqueada'.")
 
-    # Alterar urgência de localidades aleatoriamente
     for node in graph.nodes.values():
-        if random.random() < 0.2:  # 20% de chance de mudar a urgência
+        if random.random() < 0.2:  
             old_urgency = node.urgencia
             new_urgency = random.randint(1, 10)
-            node.urgencia = max(1, min(10, new_urgency))  # Nova urgência entre 1 e 5
+            node.urgencia = max(1, min(10, new_urgency))  
             alterations.append(f"Urgência de {node.nome} mudou de {old_urgency} para {node.urgencia}.")
 
     print("\n--- Fim da Simulação ---")
@@ -206,7 +202,6 @@ def simulate_events(graph, reduce_probability=True):
 
 
 if __name__ == "__main__":
-    # Criar localidades com nova população e mantimentos
     loc_a = Localidade("Guimarães", populacao=2000, urgencia=3, acessibilidade="asfalto", reabastecimento=True)
     loc_b = Localidade("Braga", populacao=1500, urgencia=5, acessibilidade="terra")
     loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha", reabastecimento=True)
@@ -219,7 +214,6 @@ if __name__ == "__main__":
     loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra", reabastecimento=True)
     loc_k = Localidade("Faro", populacao=118000, urgencia=3, acessibilidade="asfalto")
 
-    # Adicionar mantimentos atualizados
     loc_a.mantimentos = 500
     loc_b.mantimentos = 400
     loc_c.mantimentos = 300
@@ -232,14 +226,11 @@ if __name__ == "__main__":
     loc_j.mantimentos = 200
     loc_k.mantimentos = 400
 
-    # Criar o grafo
     graph = Grafo()
 
-    # Adicionar localidades ao grafo
     for loc in [loc_a, loc_b, loc_c, loc_d, loc_e, loc_f, loc_g, loc_h, loc_i, loc_j, loc_k]:
         graph.add_node(loc)
 
-    # Adicionar rotas entre localidades
     graph.add_edge("Guimarães", "Braga", 50, "asfalto", restricoes=["camião", "drone"])
     graph.add_edge("Braga", "Guimarães", 50, "asfalto", restricoes=["camião", "drone"])
     graph.add_edge("Guimarães", "Fafe", 70, "terra", restricoes=["drone"])
@@ -273,5 +264,4 @@ if __name__ == "__main__":
     graph.add_edge("Évora", "Porto", 400, "asfalto", restricoes=[])
     graph.add_edge("Porto", "Évora", 400, "asfalto", restricoes=[])
 
-    # Exibir o menu principal
     display_main_menu(graph)

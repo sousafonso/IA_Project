@@ -1,10 +1,10 @@
 class Transporte:
     def __init__(self, tipo, capacidade, velocidade, autonomia):
-        self.tipo = tipo  # Tipo do transporte
-        self.capacidade = capacidade  # Capacidade máxima de carga
-        self.velocidade = velocidade  # Velocidade em km/h
-        self.autonomia = autonomia  # Autonomia máxima em km
-        self.current_fuel = autonomia  # Quantidade atual de combustível
+        self.tipo = tipo  
+        self.capacidade = capacidade  
+        self.velocidade = velocidade  
+        self.autonomia = autonomia  
+        self.current_fuel = autonomia  
         self.carga_atual = 0
 
     def getVelocidade(self):
@@ -46,14 +46,14 @@ class Transporte:
 
         base_cost = distancia / self.autonomia
         if conditions == "difícil":
-            base_cost *= 1.5  # Penalidade para condições difíceis
+            base_cost *= 1.5  
         return base_cost
 
 
     def can_access_route(self, route):
 
         if route.bloqueado and self.tipo in route.restricoes:
-            return False  # Transporte está restrito nesta rota
+            return False  
         return True
 
 

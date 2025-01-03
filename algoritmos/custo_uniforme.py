@@ -1,11 +1,11 @@
 from heapq import heappop, heappush
 
 def uniform_cost_search(graph, start, transport):
-    caminho_completo = []  # Caminho percorrido completo
-    total_entregue = 0  # Total de mantimentos entregues
-    localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0}  # Localidades com mantimentos
-    priority_queue = [(0, start, transport.carga_atual, transport.autonomia, [])]  # (custo acumulado, nó atual, carga, autonomia, caminho atual)
-    visited = set()  # Localidades já visitadas
+    caminho_completo = []  
+    total_entregue = 0  
+    localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0} 
+    priority_queue = [(0, start, transport.carga_atual, transport.autonomia, [])]  
+    visited = set()  
 
     def find_nearest_reabastecimento(current_node):
         """
@@ -30,23 +30,19 @@ def uniform_cost_search(graph, start, transport):
                     if route:
                         heappush(pq, (cost + route.distancia, neighbor.nome))
 
-        return None, float('inf')  # Nenhum reabastecimento encontrado
-
+        return None, float('inf')  
     while priority_queue:
         custo_atual, current, carga_atual, autonomia_restante, path = heappop(priority_queue)
         caminho_completo.append(current)
 
-        # Evitar revisitar localidades
         if current in visited:
             continue
         visited.add(current)
 
-        # Localidade atual
         current_node = graph.get_node(current)
         if not current_node:
             continue
 
-        # Entregar mantimentos
         if current_node.mantimentos > 0 and current in localidades_restantes:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
@@ -56,12 +52,12 @@ def uniform_cost_search(graph, start, transport):
                 localidades_restantes.remove(current)
             print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restam {current_node.mantimentos}.")
 
-        # Reabastecer se necessário
+
         if autonomia_restante <= 0 or carga_atual <= 0:
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
                 autonomia_restante = transport.autonomia
-                custo_atual += 1  # Tempo para reabastecer
+                custo_atual += 1  
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
             else:
                 nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
@@ -76,12 +72,10 @@ def uniform_cost_search(graph, start, transport):
                     ))
                 continue
 
-        # Verificar se todas as localidades foram atendidas
         if not localidades_restantes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, custo_atual
 
-        # Expandir vizinhos
         neighbors = graph.get_neighbors(current_node)
         for neighbor in neighbors:
             route = graph.get_route(current_node, neighbor)

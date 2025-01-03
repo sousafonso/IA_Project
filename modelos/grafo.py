@@ -39,7 +39,7 @@ class Grafo:
         """
         neighbors = []
         for (origin, destination), route in self.edges.items():
-            if origin == node.nome and not route.bloqueado:  # Verifica se a rota não está bloqueada
+            if origin == node.nome and not route.bloqueado:  
                 neighbors.append(self.nodes[destination])
         return neighbors
 
@@ -49,7 +49,7 @@ class Grafo:
         :param vehicle_speed: Velocidade média do veículo (km/h).
         """
         for route in self.edges.values():
-            route.temp_cost = route.calculate_time(vehicle_speed)  # Calcula o tempo de viagem
+            route.temp_cost = route.calculate_time(vehicle_speed)  
 
     def restore_original_costs(self):
         """

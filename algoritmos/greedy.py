@@ -10,10 +10,10 @@ def greedy_search(graph, start, transport, heuristic):
     :param heuristic: Função heurística.
     :return: Tuplo (caminho completo, custo total).
     """
-    open_set = []  # Fila de prioridade
-    visited = set()  # Localidades já visitadas
+    open_set = []  
+    visited = set()  
     localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0}
-    caminho_completo = []  # Caminho percorrido completo
+    caminho_completo = []  
     total_entregue = 0
 
     def find_nearest_reabastecimento(current_node):
@@ -39,27 +39,23 @@ def greedy_search(graph, start, transport, heuristic):
                     if route:
                         heappush(pq, (cost + route.distancia, neighbor.nome))
 
-        return None, float('inf')  # Nenhum reabastecimento encontrado
+        return None, float('inf')  
 
-    # Adiciona o nó inicial à fila com custo acumulado 0
-    heappush(open_set, (0, 0, start, []))  # (valor heurístico, custo acumulado, nó atual, caminho)
+    heappush(open_set, (0, 0, start, []))  
 
     while open_set:
         h_cost, current_cost, current, path = heappop(open_set)
         path = path + [current]
         caminho_completo.append(current)
 
-        # Evitar revisitar localidades
         if current in visited:
             continue
         visited.add(current)
 
-        # Localidade atual
         current_node = graph.get_node(current)
         if not current_node:
             continue
 
-        # Entregar mantimentos
         if current_node.mantimentos > 0 and current in localidades_restantes:
             entrega = min(current_node.mantimentos, transport.capacidade)
             current_node.mantimentos -= entrega
@@ -69,12 +65,11 @@ def greedy_search(graph, start, transport, heuristic):
                 localidades_restantes.remove(current)
             print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restam {current_node.mantimentos}.")
 
-        # Reabastecer se necessário
         if transport.autonomia <= 0 or transport.carga_atual <= 0:
             if current_node.reabastecimento:
                 transport.carga_atual = transport.capacidade
                 transport.autonomia = transport.autonomia
-                current_cost += 3  # Adiciona custo de reabastecimento
+                current_cost += 3  
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
             else:
                 nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
@@ -88,24 +83,24 @@ def greedy_search(graph, start, transport, heuristic):
                     ))
                 continue
 
-        # Verificar se todas as localidades foram atendidas
+
         if not localidades_restantes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, current_cost
 
-        # Explorar vizinhos
+
         for neighbor in graph.get_neighbors(current_node):
             route = graph.get_route(current_node, neighbor)
 
-            # Ignorar rotas bloqueadas ou inacessíveis
+
             if route and (route.bloqueado or not transport.can_access_route(route)):
                 continue
 
-            # Adiciona vizinhos acessíveis à fila de prioridade
+            
             if neighbor.nome not in visited:
                 heappush(open_set, (
-                    heuristic(graph.get_node(neighbor.nome), graph.get_node(start)),  # Apenas heurística
-                    current_cost + route.temp_cost,  # Custo acumulado
+                    heuristic(graph.get_node(neighbor.nome), graph.get_node(start)),  
+                    current_cost + route.temp_cost,  
                     neighbor.nome,
                     path
                 ))

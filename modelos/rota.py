@@ -3,14 +3,14 @@ class Rota:
         """
         :restrições: Lista de tipos de transporte que não podem acessar esta rota.
         """
-        self.numero = numero  # Identificador da rota
-        self.origem = origem  # Localidade de origem
-        self.destino = destino  # Localidade de destino
-        self.distancia = distancia  # Distância entre as localidades
+        self.numero = numero  
+        self.origem = origem  
+        self.destino = destino  
+        self.distancia = distancia  
         self.temp_cost = distancia
-        self.pavimento = pavimento  # Tipo de pavimento
-        self.restricoes = restricoes if restricoes else []  # Restrições de acesso
-        self.bloqueado = False  # Indica se a rota está bloqueada
+        self.pavimento = pavimento  
+        self.restricoes = restricoes if restricoes else []  
+        self.bloqueado = False  
 
 
     def update_blockage(self, blockage):
@@ -21,9 +21,9 @@ class Rota:
         self.bloqueado = True
         self.restricoes.append(blockage)
         if blockage == "tempestade":
-            self.restricoes.extend(["drone","helicóptero"])  # Veículos terrestres são bloqueados
+            self.restricoes.extend(["drone","helicóptero"]) 
         elif blockage == "estrada bloqueada":
-            self.restricoes.append("camião")  # Apenas camiões são bloqueados
+            self.restricoes.append("camião")  
 
 
     def is_accessible_by_transport(self, transport_type):

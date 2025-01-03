@@ -5,12 +5,12 @@ class Localidade:
             raise ValueError("A urgência deve ser um valor entre 1 e 10.")
 
 
-        self.nome = nome  # Identificador da localidade
-        self.populacao = populacao  # População residente
-        self.urgencia = urgencia  # Urgência da localidade
-        self.acessibilidade = acessibilidade  # Tipo de pavimento, não sei até que ponto é preciso este
-        self.reabastecimento = reabastecimento  # Indica se é ponto de reabastecimento
-        self.mantimentos = []  # Lista de mantimentos necessários para esta localidade
+        self.nome = nome  
+        self.populacao = populacao  
+        self.urgencia = urgencia  
+        self.acessibilidade = acessibilidade  
+        self.reabastecimento = reabastecimento  
+        self.mantimentos = []  
 
     def add_mantimento(self, nome, quantidade):
 
