@@ -108,37 +108,29 @@ def execute_algorithm(algorithm, graph):
         input("\nPressione Enter para voltar ao menu...")
         return
 
-    # Simular eventos uma vez para todos os veículos
-    initial_state = simulate_events(graph, reduce_probability=True)
+    # Simular eventos no grafo
+    simulated_changes = simulate_events(graph, reduce_probability=True)
     print("\n--- Alterações Iniciais ---")
-    for change in initial_state:
+    for change in simulated_changes:
         print(change)
 
     veiculos = {
-        "camião": Transporte("camião", 1000, 60, 500),
-        "drone": Transporte("drone", 20, 40, 100),
-        "helicóptero": Transporte("helicóptero", 500, 120, 1000),
+        "camião": Transporte("camião", 5000, 60, 500),
+        "drone": Transporte("drone", 600, 80, 100),
+        "helicóptero": Transporte("helicóptero", 2000, 120, 1000),
     }
 
     results = []
     for vehicle, transporte in veiculos.items():
         print(f"\nCalculando o melhor caminho para o veículo: {vehicle}")
+        graph_state_backup = {node.nome: node.mantimentos for node in graph.nodes.values()}  # Backup do estado do grafo
         graph.update_costs_for_vehicle(transporte.getVelocidade())
 
         # Alterações em cada nó visitado
         path = []
-        def simulate_on_step(node):
-            """
-            Simula alterações ao avançar para um nó.
-            :param node: Nome do nó atual.
-            """
-            step_alterations = simulate_events(graph, reduce_probability=True)
-            print(f"\n--- Alterações ao avançar para {node} ---")
-            for change in step_alterations:
-                print(change)
 
         if algorithm == "BFS":
-            path, cost = bfs(graph, start, goal, transporte)
+            path, cost = bfs(graph, start, transporte)
         elif algorithm == "DFS":
             path, cost = dfs(graph, start, goal, transporte)
         elif algorithm == "A*":
@@ -150,18 +142,26 @@ def execute_algorithm(algorithm, graph):
         else:
             print("Algoritmo não reconhecido.")
             return
+        
+        total_entregue = sum(
+            graph_state_backup[nome] - graph.get_node(nome).mantimentos
+            for nome in graph_state_backup.keys()
+        )
+
+        for nome, mantimentos in graph_state_backup.items():
+            graph.get_node(nome).mantimentos = mantimentos
 
         if path:
-            results.append((vehicle, path, cost))
-            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {cost} horas")
+            results.append((vehicle, path, cost, total_entregue))
+            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {cost} horas, Mantimentos entregues: {total_entregue}")
         else:
             print(f"Não foi possível encontrar um caminho para o veículo: {vehicle.capitalize()}")
 
         graph.restore_original_costs()
 
     if results:
-        best_vehicle = min(results, key=lambda x: x[2])  # Ordenar por custo total
-        print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Caminho: {' -> '.join(best_vehicle[1])}, Custo: {best_vehicle[2]} horas")
+        best_vehicle = min(results, key=lambda x: x[2] / x[3] if x[3] > 0 else float('inf'))
+        print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Caminho: {' -> '.join(best_vehicle[1])}, Custo: {best_vehicle[2]} horas, Mantimentos entregues: {best_vehicle[3]}")
     else:
         print("\nNenhum veículo conseguiu encontrar um caminho válido.")
 
@@ -212,24 +212,37 @@ def simulate_events(graph, reduce_probability=True):
 
 
 if __name__ == "__main__":
-    # Criar localidades
-    loc_a = Localidade("Guimarães", populacao=500, urgencia=3, acessibilidade="asfalto")
-    loc_b = Localidade("Braga", populacao=300, urgencia=5, acessibilidade="terra")
-    loc_c = Localidade("Fafe", populacao=800, urgencia=2, acessibilidade="trilha")
-    loc_d = Localidade("Vizela", populacao=1000, urgencia=1, acessibilidade="asfalto")
-    loc_e = Localidade("Ponte de Lima", populacao=200, urgencia=4, acessibilidade="terra")
-    loc_f = Localidade("Porto", populacao=214349, urgencia=2, acessibilidade="asfalto")
+    # Criar localidades com nova população e mantimentos
+    loc_a = Localidade("Guimarães", populacao=2000, urgencia=3, acessibilidade="asfalto", reabastecimento=True)
+    loc_b = Localidade("Braga", populacao=1500, urgencia=5, acessibilidade="terra")
+    loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha")
+    loc_d = Localidade("Vizela", populacao=1800, urgencia=1, acessibilidade="asfalto")
+    loc_e = Localidade("Ponte de Lima", populacao=900, urgencia=4, acessibilidade="terra", reabastecimento=True)
+    loc_f = Localidade("Porto", populacao=214349, urgencia=2, acessibilidade="asfalto", reabastecimento=True)
     loc_g = Localidade("Lisboa", populacao=504718, urgencia=1, acessibilidade="paralelo")
     loc_h = Localidade("Coimbra", populacao=143396, urgencia=4, acessibilidade="terra")
     loc_i = Localidade("Aveiro", populacao=78000, urgencia=3, acessibilidade="asfalto")
     loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra")
     loc_k = Localidade("Faro", populacao=118000, urgencia=3, acessibilidade="asfalto")
 
+    # Adicionar mantimentos atualizados
+    loc_a.mantimentos = 500
+    loc_b.mantimentos = 400
+    loc_c.mantimentos = 300
+    loc_d.mantimentos = 250
+    loc_e.mantimentos = 600
+    loc_f.mantimentos = 350
+    loc_g.mantimentos = 200
+    loc_h.mantimentos = 400
+    loc_i.mantimentos = 150
+    loc_j.mantimentos = 200
+    loc_k.mantimentos = 400
+
     # Criar o grafo
     graph = Grafo()
 
     # Adicionar localidades ao grafo
-    for loc in [loc_a, loc_b, loc_c, loc_d, loc_e,loc_f, loc_g,loc_h,loc_i,loc_j,loc_k]:
+    for loc in [loc_a, loc_b, loc_c, loc_d, loc_e, loc_f, loc_g, loc_h, loc_i, loc_j, loc_k]:
         graph.add_node(loc)
 
     # Adicionar rotas entre localidades
@@ -255,8 +268,8 @@ if __name__ == "__main__":
     graph.add_edge("Braga", "Aveiro", 120, "asfalto", restricoes=["camião"])
     graph.add_edge("Ponte de Lima", "Lisboa", 365, "paralelo", restricoes=["drone"])
     graph.add_edge("Lisboa", "Ponte de Lima", 365, "paralelo", restricoes=["drone"])
-    graph.add_edge("Aveiro", "Porto", 70, "asfalto", restricoes=[]) 
-    graph.add_edge("Porto", "Aveiro", 70, "asfalto", restricoes=[]) 
+    graph.add_edge("Aveiro", "Porto", 70, "asfalto", restricoes=[])
+    graph.add_edge("Porto", "Aveiro", 70, "asfalto", restricoes=[])
     graph.add_edge("Lisboa", "Évora", 130, "terra", restricoes=["camião"])
     graph.add_edge("Évora", "Lisboa", 130, "terra", restricoes=["camião"])
     graph.add_edge("Évora", "Faro", 200, "asfalto", restricoes=[])
