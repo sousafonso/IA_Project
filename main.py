@@ -202,29 +202,29 @@ def simulate_events(graph, reduce_probability=True):
 
 
 if __name__ == "__main__":
-    loc_a = Localidade("Guimarães", populacao=2000, urgencia=3, acessibilidade="asfalto", reabastecimento=True)
+    loc_a = Localidade("Guimarães", populacao=2000, urgencia=1, acessibilidade="asfalto", reabastecimento=True)
     loc_b = Localidade("Braga", populacao=1500, urgencia=5, acessibilidade="terra")
-    loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha", reabastecimento=True)
-    loc_d = Localidade("Vizela", populacao=1800, urgencia=1, acessibilidade="asfalto")
-    loc_e = Localidade("Ponte de Lima", populacao=900, urgencia=4, acessibilidade="terra", reabastecimento=True)
+    loc_c = Localidade("Fafe", populacao=1200, urgencia=1, acessibilidade="trilha", reabastecimento=True)
+    loc_d = Localidade("Vizela", populacao=1800, urgencia=4, acessibilidade="asfalto")
+    loc_e = Localidade("Ponte de Lima", populacao=900, urgencia=1, acessibilidade="terra", reabastecimento=True)
     loc_f = Localidade("Porto", populacao=1870, urgencia=2, acessibilidade="asfalto")
-    loc_g = Localidade("Lisboa", populacao=2500, urgencia=1, acessibilidade="paralelo")
-    loc_h = Localidade("Coimbra", populacao=3780, urgencia=4, acessibilidade="terra", reabastecimento=True)
-    loc_i = Localidade("Aveiro", populacao=10000, urgencia=3, acessibilidade="asfalto")
-    loc_j = Localidade("Évora", populacao=1870, urgencia=2, acessibilidade="terra", reabastecimento=True)
-    loc_k = Localidade("Faro", populacao=2000, urgencia=3, acessibilidade="asfalto")
+    loc_g = Localidade("Lisboa", populacao=2500, urgencia=6, acessibilidade="paralelo")
+    loc_h = Localidade("Coimbra", populacao=3780, urgencia=1, acessibilidade="terra", reabastecimento=True)
+    loc_i = Localidade("Aveiro", populacao=10000, urgencia=5, acessibilidade="asfalto")
+    loc_j = Localidade("Évora", populacao=1870, urgencia=1, acessibilidade="terra", reabastecimento=True)
+    loc_k = Localidade("Faro", populacao=2000, urgencia=8, acessibilidade="asfalto")
 
-    loc_a.mantimentos = 0
-    loc_b.mantimentos = 700
-    loc_c.mantimentos = 0
-    loc_d.mantimentos = 360
-    loc_e.mantimentos = 0
-    loc_f.mantimentos = 900
-    loc_g.mantimentos = 650
-    loc_h.mantimentos = 0
-    loc_i.mantimentos = 4570
-    loc_j.mantimentos = 0
-    loc_k.mantimentos = 630
+    loc_a.add_mantimento(0)
+    loc_b.add_mantimento(700)
+    loc_c.add_mantimento(0)
+    loc_d.add_mantimento(360)
+    loc_e.add_mantimento(0)
+    loc_f.add_mantimento(900)
+    loc_g.add_mantimento(650)
+    loc_h.add_mantimento(0)
+    loc_i.add_mantimento(4570)
+    loc_j.add_mantimento(0)
+    loc_k.add_mantimento(630)
 
     graph = Grafo()
 

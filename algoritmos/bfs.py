@@ -4,14 +4,14 @@ from heapq import heappop, heappush
 
 def bfs(graph, start, transport):
     visited = set()
-    queue = deque([([start], transport.carga_atual, transport.autonomia, 0)])
+    queue = deque([([start], transport.capacidade, transport.autonomia, 0)])
     total_entregue = 0
 
     # Localidades restantes excluindo as de reabastecimento
     localidades_restantes = {
         node.nome for node in graph.nodes.values() if node.mantimentos > 0 and not node.reabastecimento
     }
-
+    localidades_pendentes = set()
     caminho_completo = []
 
     def find_nearest_reabastecimento(current_node):
@@ -55,6 +55,7 @@ def bfs(graph, start, transport):
                 localidades_restantes.remove(current)
                 print(f"Entregue {entrega} mantimentos em {current_node.nome}. Todos atendidos.")
             else:
+                localidades_pendentes.add(current)
                 print(f"Entregue {entrega} mantimentos em {current_node.nome}. Ainda restam {current_node.mantimentos}.")
 
         # Verifica reabastecimento
@@ -64,15 +65,6 @@ def bfs(graph, start, transport):
                 tempo_total += 3  # Tempo fixo para reabastecimento
                 autonomia_restante = transport.autonomia
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
-
-                # Repriorizar a entrega para a localidade anterior
-                if current in localidades_restantes:
-                    queue.append((
-                        path + [current],  # Voltar ao ponto para completar entrega
-                        carga_atual,
-                        autonomia_restante,
-                        tempo_total
-                    ))
             else:
                 print(f"Autonomia ou carga insuficientes em {current_node.nome}. Procurando reabastecimento...")
                 nearest_reabastecimento, distance_to_reabastecimento = find_nearest_reabastecimento(current_node)
@@ -88,7 +80,7 @@ def bfs(graph, start, transport):
                 continue
 
         # Verificar se todas as localidades foram atendidas
-        if not localidades_restantes:
+        if not localidades_restantes and not localidades_pendentes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, tempo_total
 
@@ -108,5 +100,15 @@ def bfs(graph, start, transport):
                     autonomia_restante - route.distancia,
                     tempo_total + (route.distancia / transport.velocidade)
                 ))
+
+        # Repriorizar localidades pendentes
+        for pendente in list(localidades_pendentes):
+            queue.append((
+                path + [pendente],
+                carga_atual,
+                autonomia_restante,
+                tempo_total
+            ))
+            localidades_pendentes.remove(pendente)
 
     return caminho_completo, tempo_total

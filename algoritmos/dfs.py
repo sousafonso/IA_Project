@@ -1,12 +1,12 @@
 def dfs(graph, start, transport):
-    caminho_completo = []  
-    total_entregue = 0  
+    caminho_completo = []
+    total_entregue = 0
     localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0 and not node.reabastecimento}
-    localidades_pendentes = set()  # Localidades que ainda precisam de entregas
+    localidades_pendentes = set()
 
     def find_nearest_reabastecimento(current_node):
         visited_reabastecimento = set()
-        stack = [(current_node.nome, 0)]  
+        stack = [(current_node.nome, 0)]
 
         while stack:
             node_name, cost = stack.pop()
@@ -22,7 +22,7 @@ def dfs(graph, start, transport):
                     if route:
                         stack.append((neighbor.nome, cost + route.distancia))
 
-        return None, float('inf')  
+        return None, float('inf')
 
     def dfs_recursive(current, carga_atual, autonomia_restante, tempo_total, visited):
         nonlocal caminho_completo, total_entregue
@@ -31,20 +31,19 @@ def dfs(graph, start, transport):
 
         current_node = graph.get_node(current)
         if not current_node:
-            return tempo_total  
+            return tempo_total
 
         # Entregar mantimentos
-        if current_node.mantimentos > 0 and current in localidades_restantes:
+        if current_node.mantimentos > 0 and current in localidades_restantes and carga_atual > 0:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
             carga_atual -= entrega
             total_entregue += entrega
+            print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restante: {current_node.mantimentos}.")
             if current_node.mantimentos == 0:
                 localidades_restantes.remove(current)
-                print(f"Entregue {entrega} mantimentos em {current_node.nome}. Todos atendidos.")
             else:
                 localidades_pendentes.add(current)
-                print(f"Entregue {entrega} mantimentos em {current_node.nome}. Ainda restam {current_node.mantimentos}.")
 
         # Reabastecimento se necessário
         if autonomia_restante <= 0 or carga_atual <= 0:
@@ -56,14 +55,7 @@ def dfs(graph, start, transport):
                 autonomia_restante = transport.autonomia
                 caminho_completo.append(nearest_reabastecimento)
                 print(f"Reabastecimento em {nearest_reabastecimento}: carga e autonomia restauradas.")
-
-                # Retornar às localidades pendentes
-                if current in localidades_pendentes:
-                    localidades_pendentes.remove(current)
-                    return dfs_recursive(current, carga_atual, autonomia_restante, tempo_total, visited)
-            else:
-                print(f"Não foi possível encontrar reabastecimento a partir de {current}.")
-                return tempo_total
+                return dfs_recursive(current, carga_atual, autonomia_restante, tempo_total, visited)
 
         # Verificar se todas as localidades foram atendidas
         if not localidades_restantes and not localidades_pendentes:
@@ -74,7 +66,7 @@ def dfs(graph, start, transport):
         visited.add(current)
         neighbors = sorted(
             graph.get_neighbors(current_node),
-            key=lambda n: graph.get_node(n.nome).urgencia,  
+            key=lambda n: graph.get_node(n.nome).urgencia,
             reverse=True
         )
         for neighbor in neighbors:
@@ -86,13 +78,12 @@ def dfs(graph, start, transport):
 
                 nova_autonomia = autonomia_restante - route.distancia
                 novo_tempo = tempo_total + (route.distancia / transport.velocidade)
-                tempo_final = dfs_recursive(neighbor.nome, carga_atual, nova_autonomia, novo_tempo, visited)
-                tempo_total = max(tempo_total, tempo_final)
+                tempo_total = dfs_recursive(neighbor.nome, carga_atual, nova_autonomia, novo_tempo, visited)
 
         # Retornar às localidades pendentes após explorar os vizinhos
         while localidades_pendentes:
             pendente = localidades_pendentes.pop()
-            return dfs_recursive(pendente, carga_atual, autonomia_restante, tempo_total, visited)
+            tempo_total = dfs_recursive(pendente, carga_atual, autonomia_restante, tempo_total, visited)
 
         return tempo_total
 
