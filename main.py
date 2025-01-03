@@ -110,9 +110,9 @@ def execute_algorithm(algorithm, graph):
         print(change)
 
     veiculos = {
-        "camião": Transporte("camião", 5000, 60, 500),
-        "drone": Transporte("drone", 600, 80, 100),
-        "helicóptero": Transporte("helicóptero", 2000, 120, 1000),
+        "camião": Transporte("camião", 5000, 60, 1000),
+        "drone": Transporte("drone", 600, 110, 100),
+        "helicóptero": Transporte("helicóptero", 2000, 150, 300),
     }
 
     results = []
@@ -132,8 +132,8 @@ def execute_algorithm(algorithm, graph):
        #     path, cost = a_star(graph, start, goal, heuristic, transporte)
        # elif algorithm == "Greedy Search":
        #     path, cost = greedy_search(graph, start, goal, heuristic, transporte)
-       # elif algorithm == "Custo Uniforme":
-       #     path, cost = uniform_cost_search(graph, start, goal, transporte)
+        elif algorithm == "Custo Uniforme":
+            path, cost = uniform_cost_search(graph, start, transporte)
         else:
             print("Algoritmo não reconhecido.")
             return

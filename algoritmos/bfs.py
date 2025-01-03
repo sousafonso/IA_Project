@@ -51,13 +51,15 @@ def bfs(graph, start, transport):
             current_node.mantimentos -= entrega
             carga_atual -= entrega
             total_entregue += entrega
-            localidades_restantes.remove(current) if current_node.mantimentos == 0 else None
+            if current_node.mantimentos == 0:
+                localidades_restantes.remove(current)
             print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restam {current_node.mantimentos}.")
 
         # Verificar reabastecimento antecipado
-        if autonomia_restante <= 0 or carga_atual == 0:
+        if (autonomia_restante <= 0 or carga_atual == 0):
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
+                tempo_total += 1
                 autonomia_restante = transport.autonomia
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
             else:
