@@ -90,7 +90,7 @@ def display_algorithm_menu(graph):
 
 def execute_algorithm(algorithm, graph):
     """
-    Executa o algoritmo selecionado.
+    Executa o algoritmo selecionado e realiza simulações controladas.
     :param algorithm: Nome do algoritmo.
     :param graph: Objeto Grafo.
     """
@@ -107,30 +107,46 @@ def execute_algorithm(algorithm, graph):
         print(f"O nó '{goal}' não existe no grafo.")
         input("\nPressione Enter para voltar ao menu...")
         return
-    
-    transport = Transporte(tipo="camião", capacidade=1000, velocidade=80, autonomia=500)
 
-    path = None
-    cost = None
+    # Simular eventos uma vez para todos os veículos
+    initial_state = simulate_events(graph, reduce_probability=True)
+    print("\n--- Alterações Iniciais ---")
+    for change in initial_state:
+        print(change)
 
+    veiculos = {
+        "camião": Transporte("camião", 1000, 60, 500),
+        "drone": Transporte("drone", 20, 40, 100),
+        "helicóptero": Transporte("helicóptero", 500, 120, 1000),
+    }
 
-    veiculos = {"camião": 60, "drone": 40, "helicóptero": 120}
     results = []
-
-    for vehicle, speed in veiculos.items():
+    for vehicle, transporte in veiculos.items():
         print(f"\nCalculando o melhor caminho para o veículo: {vehicle}")
-        graph.update_costs_for_vehicle(speed)
+        graph.update_costs_for_vehicle(transporte.getVelocidade())
+
+        # Alterações em cada nó visitado
+        path = []
+        def simulate_on_step(node):
+            """
+            Simula alterações ao avançar para um nó.
+            :param node: Nome do nó atual.
+            """
+            step_alterations = simulate_events(graph, reduce_probability=True)
+            print(f"\n--- Alterações ao avançar para {node} ---")
+            for change in step_alterations:
+                print(change)
 
         if algorithm == "BFS":
-            path, cost = bfs(graph, start, goal,transport)
+            path, cost = bfs(graph, start, goal, transporte)
         elif algorithm == "DFS":
-            path, cost = dfs(graph, start, transport, goal)
+            path, cost = dfs(graph, start, goal, transporte)
         elif algorithm == "A*":
-            path, cost = a_star(graph, start, goal, heuristic, transport)
+            path, cost = a_star(graph, start, goal, heuristic, transporte)
         elif algorithm == "Greedy Search":
-            path, cost = greedy_search(graph, start, goal, heuristic, transport)
+            path, cost = greedy_search(graph, start, goal, heuristic, transporte)
         elif algorithm == "Custo Uniforme":
-            path, cost = uniform_cost_search(graph, start, goal, transport)
+            path, cost = uniform_cost_search(graph, start, goal, transporte)
         else:
             print("Algoritmo não reconhecido.")
             return
@@ -149,36 +165,50 @@ def execute_algorithm(algorithm, graph):
     else:
         print("\nNenhum veículo conseguiu encontrar um caminho válido.")
 
-
     input("\nPressione Enter para voltar ao menu...")
 
 
-def simulate_events(graph):
+def simulate_events(graph, reduce_probability=True):
     """
-    Simula eventos aleatórios, como bloqueio de rotas por tempestades ou marcação como estrada bloqueada,
-    além de alteração de urgências nas localidades.
+    Simula eventos aleatórios no grafo, como bloqueio de rotas e alteração de urgências.
+    Esta função pode ser chamada uma vez para criar um estado inicial fixo.
+
     :param graph: Objeto do grafo.
+    :param reduce_probability: Reduz a probabilidade de alterações (default=True).
+    :return: Lista de alterações aplicadas.
     """
+    alterations = []
+
     print("\n--- Simulação de Eventos Aleatórios ---")
 
     # Bloquear rotas aleatoriamente devido a imprevistos
     for (origem, destino), route in graph.edges.items():
+        if reduce_probability:
+            prob_tempestade = 0.1  # 10% de chance
+            prob_estrada = 0.15  # 15% de chance
+        else:
+            prob_tempestade = 0.2
+            prob_estrada = 0.3
+
         imprevisto = random.choice(["tempestade", "estrada bloqueada", None])  # Escolhe um evento aleatório
-        if imprevisto == "tempestade" and random.random() < 0.2:  # 20% de chance para tempestade
+        if imprevisto == "tempestade" and random.random() < prob_tempestade:
             route.update_blockage("tempestade")
-            print(f"Rota de {origem} para {destino} foi bloqueada devido a uma tempestade.")
-        elif imprevisto == "estrada bloqueada" and random.random() < 0.3:  # 30% de chance para estrada bloqueada
+            alterations.append(f"Rota de {origem} para {destino} foi bloqueada devido a uma tempestade.")
+        elif imprevisto == "estrada bloqueada" and random.random() < prob_estrada:
             route.update_blockage("estrada bloqueada")
-            print(f"Rota de {origem} para {destino} foi marcada como 'estrada bloqueada'.")
+            alterations.append(f"Rota de {origem} para {destino} foi marcada como 'estrada bloqueada'.")
 
     # Alterar urgência de localidades aleatoriamente
     for node in graph.nodes.values():
-        if random.random() < 0.4:  # 40% de chance de mudar a urgência
+        if random.random() < 0.2:  # 20% de chance de mudar a urgência
             old_urgency = node.urgencia
             node.urgencia = random.randint(1, 5)  # Nova urgência entre 1 e 5
-            print(f"Urgência de {node.nome} mudou de {old_urgency} para {node.urgencia}.")
+            alterations.append(f"Urgência de {node.nome} mudou de {old_urgency} para {node.urgencia}.")
 
-    print("--- Fim da Simulação ---\n")
+    print("\n--- Fim da Simulação ---")
+
+    return alterations
+
 
 
 if __name__ == "__main__":
