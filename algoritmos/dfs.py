@@ -33,7 +33,7 @@ def dfs(graph, start, transport):
         if not current_node:
             return tempo_total
 
-        # Entregar mantimentos
+
         if current_node.mantimentos > 0 and current in localidades_restantes and carga_atual > 0:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
@@ -45,7 +45,7 @@ def dfs(graph, start, transport):
             else:
                 localidades_pendentes.add(current)
 
-        # Reabastecimento se necessário
+
         if autonomia_restante <= 0 or carga_atual <= 0:
             nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
             if nearest_reabastecimento:
@@ -57,12 +57,11 @@ def dfs(graph, start, transport):
                 print(f"Reabastecimento em {nearest_reabastecimento}: carga e autonomia restauradas.")
                 return dfs_recursive(current, carga_atual, autonomia_restante, tempo_total, visited)
 
-        # Verificar se todas as localidades foram atendidas
+
         if not localidades_restantes and not localidades_pendentes:
             print("Todas as localidades foram atendidas.")
             return tempo_total
 
-        # Explorar vizinhos
         visited.add(current)
         neighbors = sorted(
             graph.get_neighbors(current_node),
@@ -80,7 +79,6 @@ def dfs(graph, start, transport):
                 novo_tempo = tempo_total + (route.distancia / transport.velocidade)
                 tempo_total = dfs_recursive(neighbor.nome, carga_atual, nova_autonomia, novo_tempo, visited)
 
-        # Retornar às localidades pendentes após explorar os vizinhos
         while localidades_pendentes:
             pendente = localidades_pendentes.pop()
             tempo_total = dfs_recursive(pendente, carga_atual, autonomia_restante, tempo_total, visited)

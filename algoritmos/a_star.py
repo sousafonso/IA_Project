@@ -2,12 +2,12 @@ from heapq import heappush, heappop
 
 def a_star(graph, start, heuristic, transport):
     open_set = []
-    heappush(open_set, (0, 0, start, transport.capacidade, transport.autonomia, 0, []))  # f_cost, g_cost, current, carga, autonomia, tempo_total, path
+    heappush(open_set, (0, 0, start, transport.capacidade, transport.autonomia, 0, []))  
 
     localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0}
     localidades_pendentes = set()
     caminho_completo = []
-    atendidos = set()  # Localidades já totalmente atendidas
+    atendidos = set() 
 
     def find_nearest_reabastecimento(current_node):
         pq = [(0, current_node.nome)]
@@ -40,29 +40,29 @@ def a_star(graph, start, heuristic, transport):
         if not current_node:
             continue
 
-        # Entregar mantimentos
+
         if current_node.mantimentos > 0:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
             carga_atual -= entrega
-            print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restante: {current_node.mantimentos}.")
+            print(f"Foram entregues {entrega} mantimentos em {current_node.nome}. Restam entregar: {current_node.mantimentos}.")
             if current_node.mantimentos == 0:
                 localidades_restantes.remove(current)
                 atendidos.add(current)
             else:
                 localidades_pendentes.add(current)
 
-        # Verificar reabastecimento
+
         if autonomia_restante <= 0 or carga_atual <= 0:
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
                 autonomia_restante = transport.autonomia
-                tempo_total += 3  # Tempo fixo para reabastecimento
-                print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
+                tempo_total += 3 
+                print(f"Reabastecimento em {current_node.nome}: .")
             else:
                 nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
                 if nearest_reabastecimento:
-                    print(f"Dirigindo-se ao reabastecimento mais próximo: {nearest_reabastecimento}.")
+                    print(f"A dirigir ao abastecimento: {nearest_reabastecimento}.")
                     tempo_total += distancia / transport.velocidade
                     heappush(open_set, (
                         g_cost_current + distancia + heuristic(graph.get_node(nearest_reabastecimento), None),
@@ -75,14 +75,13 @@ def a_star(graph, start, heuristic, transport):
                     ))
                 continue
 
-        # Verificar se todas as localidades foram atendidas
+
         if not localidades_restantes and not localidades_pendentes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, tempo_total
 
-        # Adicionar vizinhos à fila
         for neighbor in graph.get_neighbors(current_node):
-            if neighbor.nome in atendidos:  # Evitar vizinhos já atendidos
+            if neighbor.nome in atendidos: 
                 continue
             route = graph.get_route(current_node, neighbor)
             if route and transport.can_access_route(route):
@@ -98,9 +97,9 @@ def a_star(graph, start, heuristic, transport):
                     path
                 ))
 
-        # Processar localidades pendentes
+
         for pendente in list(localidades_pendentes):
-            if pendente in atendidos:  # Evitar reexplorar localidades atendidas
+            if pendente in atendidos:  
                 localidades_pendentes.remove(pendente)
                 continue
             heappush(open_set, (
@@ -114,4 +113,4 @@ def a_star(graph, start, heuristic, transport):
             ))
             localidades_pendentes.remove(pendente)
 
-    return caminho_completo, float('inf')  # Retorna custo infinito se não for possível atender todas as localidades
+    return caminho_completo, float('inf')  
