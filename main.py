@@ -105,9 +105,9 @@ def execute_algorithm(algorithm, graph):
         print(change)
 
     veiculos = {
-        "camião": Transporte("camião", 5000, 60, 1000),
-        "drone": Transporte("drone", 600, 110, 100),
-        "helicóptero": Transporte("helicóptero", 2000, 150, 300),
+        "camião": Transporte("camião", 5000, 60, 1200),
+        "drone": Transporte("drone", 600, 200, 200),
+        "helicóptero": Transporte("helicóptero", 2000, 150, 400),
     }
 
     results = []
@@ -119,15 +119,15 @@ def execute_algorithm(algorithm, graph):
         path = []
 
         if algorithm == "BFS":
-            path, cost = bfs(graph, start, transporte)
+            path, tempo = bfs(graph, start, transporte)
         elif algorithm == "DFS":
-            path, cost = dfs(graph, start, transporte)
+            path, tempo = dfs(graph, start, transporte)
         elif algorithm == "A*":
-            path, cost = a_star(graph, start, heuristic, transporte)
+            path, tempo = a_star(graph, start, heuristic, transporte)
         elif algorithm == "Greedy Search":
-            path, cost = greedy_search(graph, start, transporte, heuristic)
+            path, tempo = greedy_search(graph, start, transporte, heuristic)
         elif algorithm == "Custo Uniforme":
-            path, cost = uniform_cost_search(graph, start, transporte)
+            path, tempo = uniform_cost_search(graph, start, transporte)
         else:
             print("Algoritmo não reconhecido.")
             return
@@ -141,8 +141,8 @@ def execute_algorithm(algorithm, graph):
             graph.get_node(nome).mantimentos = mantimentos
 
         if path:
-            results.append((vehicle, path, cost, total_entregue))
-            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {cost} horas, Mantimentos entregues: {total_entregue}")
+            results.append((vehicle, path, tempo, total_entregue))
+            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {tempo} horas, Mantimentos entregues: {total_entregue}")
         else:
             print(f"Não foi possível encontrar um caminho para o veículo: {vehicle.capitalize()}")
 
@@ -207,24 +207,24 @@ if __name__ == "__main__":
     loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha", reabastecimento=True)
     loc_d = Localidade("Vizela", populacao=1800, urgencia=1, acessibilidade="asfalto")
     loc_e = Localidade("Ponte de Lima", populacao=900, urgencia=4, acessibilidade="terra", reabastecimento=True)
-    loc_f = Localidade("Porto", populacao=214349, urgencia=2, acessibilidade="asfalto", reabastecimento=True)
-    loc_g = Localidade("Lisboa", populacao=504718, urgencia=1, acessibilidade="paralelo")
-    loc_h = Localidade("Coimbra", populacao=143396, urgencia=4, acessibilidade="terra", reabastecimento=True)
-    loc_i = Localidade("Aveiro", populacao=78000, urgencia=3, acessibilidade="asfalto")
-    loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra", reabastecimento=True)
-    loc_k = Localidade("Faro", populacao=118000, urgencia=3, acessibilidade="asfalto")
+    loc_f = Localidade("Porto", populacao=1870, urgencia=2, acessibilidade="asfalto")
+    loc_g = Localidade("Lisboa", populacao=2500, urgencia=1, acessibilidade="paralelo")
+    loc_h = Localidade("Coimbra", populacao=3780, urgencia=4, acessibilidade="terra", reabastecimento=True)
+    loc_i = Localidade("Aveiro", populacao=10000, urgencia=3, acessibilidade="asfalto")
+    loc_j = Localidade("Évora", populacao=1870, urgencia=2, acessibilidade="terra", reabastecimento=True)
+    loc_k = Localidade("Faro", populacao=2000, urgencia=3, acessibilidade="asfalto")
 
-    loc_a.mantimentos = 500
-    loc_b.mantimentos = 400
-    loc_c.mantimentos = 300
-    loc_d.mantimentos = 250
-    loc_e.mantimentos = 600
-    loc_f.mantimentos = 350
-    loc_g.mantimentos = 200
-    loc_h.mantimentos = 400
-    loc_i.mantimentos = 150
-    loc_j.mantimentos = 200
-    loc_k.mantimentos = 400
+    loc_a.mantimentos = 0
+    loc_b.mantimentos = 700
+    loc_c.mantimentos = 0
+    loc_d.mantimentos = 360
+    loc_e.mantimentos = 0
+    loc_f.mantimentos = 900
+    loc_g.mantimentos = 650
+    loc_h.mantimentos = 0
+    loc_i.mantimentos = 4570
+    loc_j.mantimentos = 0
+    loc_k.mantimentos = 630
 
     graph = Grafo()
 
