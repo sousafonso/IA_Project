@@ -14,6 +14,13 @@ class Transporte:
         self.autonomia = autonomia  # Autonomia máxima em km
         self.current_fuel = autonomia  # Quantidade atual de combustível
 
+    def getVelocidade(self):
+        """
+        Retorna a velocidade do transporte.
+        """
+        return self.velocidade
+
+
     def calculate_cost(self, distancia, conditions="normal"):
         """
         Calcula o custo de combustível com base na distância e nas condições da rota.
