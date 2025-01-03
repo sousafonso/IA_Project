@@ -35,11 +35,11 @@ def uniform_cost_search(graph, start, transport):
         if not current_node or (current in caminho_completo and current not in localidades_restantes):
             continue
 
-        # Adicionar ao caminho completo ao visitar
+
         if not caminho_completo or caminho_completo[-1] != current:
             caminho_completo.append(current)
 
-        # Entregar mantimentos
+
         if current_node.mantimentos > 0 and carga_atual > 0:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
@@ -51,7 +51,7 @@ def uniform_cost_search(graph, start, transport):
             else:
                 localidades_pendentes.add(current)
 
-        # Reabastecimento se necessário
+
         if autonomia_restante <= 0 or carga_atual <= 0:
             nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
             if nearest_reabastecimento:
@@ -70,12 +70,12 @@ def uniform_cost_search(graph, start, transport):
                 ))
                 continue
 
-        # Verificar se todas as localidades foram atendidas
+
         if not localidades_restantes and not localidades_pendentes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, custo_atual
 
-        # Adicionar vizinhos à fila de prioridade
+
         neighbors = graph.get_neighbors(current_node)
         for neighbor in neighbors:
             route = graph.get_route(current_node, neighbor)
@@ -90,7 +90,6 @@ def uniform_cost_search(graph, start, transport):
                     path
                 ))
 
-        # Retornar às localidades pendentes após explorar os vizinhos
         while localidades_pendentes:
             pendente = localidades_pendentes.pop()
             heappush(priority_queue, (

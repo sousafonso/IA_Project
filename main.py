@@ -13,15 +13,11 @@ from utils.heuristica import heuristic
 from utils.visualizacao import visualize_graph_with_image
 
 def clear_screen():
-    """
-    Limpa o terminal para que o menu anterior desapareça.
-    """
+
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def display_main_menu(graph):
-    """
-    Exibe o menu principal para o usuário.
-    """
+
     while True:
         print("\nMenu Principal:")
         print("1. Visualizar Grafo")
@@ -29,34 +25,32 @@ def display_main_menu(graph):
         print("0. Sair")
 
         try:
-            option = int(input("Escolha uma opção: "))
+            option = int(input("Escolhe uma opção: "))
             if option == 1:
                 visualize_graph(graph)
             elif option == 2:
                 display_algorithm_menu(graph)
             elif option == 0:
-                print("Saindo do programa.")
+                print("A sair do programa.")
                 break
             else:
-                print("Opção inválida. Tente novamente.")
+                print("A opção não existe. Tenta novamente.")
         except ValueError:
-            print("Entrada inválida. Por favor, insira um número.")
+            print("Entrada inválida")
 
 def visualize_graph(graph):
     clear_screen()
-    print("\nVisualizando o Grafo:")
+    print("\nGráfico:")
     visualize_graph_with_image(graph)
-    input("\nPressione Enter para voltar ao menu...")
+    input("\nPressiona Enter para voltar ao menu...")
 
 def display_algorithm_menu(graph):
-    """
-    Exibe o menu para escolha de algoritmos.
-    """
+
     while True:
         simulate_events(graph)
         clear_screen()
 
-        print("\nEscolha o Algoritmo de Procura:")
+        print("\nEscolhe o algoritmo de procura:")
         print("1. BFS")
         print("2. DFS")
         print("3. A*")
@@ -77,7 +71,7 @@ def display_algorithm_menu(graph):
             elif option == 5:
                 execute_algorithm("Custo Uniforme", graph)
             elif option == 0:
-                print("Voltando ao Menu Principal.")
+                print("A voltar ao menu principal.")
                 break
             else:
                 print("Opção inválida. Tente novamente.")
@@ -85,18 +79,14 @@ def display_algorithm_menu(graph):
             print("Entrada inválida. Por favor, insira um número.")
 
 def execute_algorithm(algorithm, graph):
-    """
-    Executa o algoritmo selecionado e realiza simulações controladas.
-    :param algorithm: Nome do algoritmo.
-    :param graph: Objeto Grafo.
-    """
+
     clear_screen()
-    print(f"\nExecutando {algorithm}...")
-    start = input("Digite o nó de início: ").strip()
+    print(f"\A executar {algorithm}...")
+    start = input("Digite a localidade inicial: ").strip()
 
     if not graph.get_node(start):
-        print(f"O nó '{start}' não existe no grafo.")
-        input("\nPressione Enter para voltar ao menu...")
+        print(f"A localidade '{start}' não existe no mapa.")
+        input("\Pressiona Enter para voltar ao menu...")
         return
     
     simulated_changes = simulate_events(graph, reduce_probability=True)
@@ -112,7 +102,7 @@ def execute_algorithm(algorithm, graph):
 
     results = []
     for vehicle, transporte in veiculos.items():
-        print(f"\nCalculando o melhor caminho para o veículo: {vehicle}")
+        print(f"\nA calcular o melhor percurso para o veículo: {vehicle}")
         graph_state_backup = {node.nome: node.mantimentos for node in graph.nodes.values()}  
         graph.update_costs_for_vehicle(transporte.getVelocidade())
 
@@ -142,9 +132,9 @@ def execute_algorithm(algorithm, graph):
 
         if path:
             results.append((vehicle, path, tempo, total_entregue))
-            print(f"Veículo: {vehicle.capitalize()}, Caminho: {' -> '.join(path)}, Custo: {tempo} horas, Mantimentos entregues: {total_entregue}")
+            print(f"Veículo: {vehicle.capitalize()}, Percurso: {' -> '.join(path)}, Duração: {tempo} horas, Mantimentos entregues: {total_entregue}")
         else:
-            print(f"Não foi possível encontrar um caminho para o veículo: {vehicle.capitalize()}")
+            print(f"Não foi possível encontrar um percurso para o veículo: {vehicle.capitalize()}")
 
         graph.restore_original_costs()
 
@@ -152,25 +142,18 @@ def execute_algorithm(algorithm, graph):
         best_vehicle = min(
             results, key=lambda x: (x[2] / x[3], x[2]) if x[3] > 0 else (float('inf'), float('inf'))
         )
-        print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Caminho: {' -> '.join(best_vehicle[1])}, Custo: {best_vehicle[2]} horas, Mantimentos entregues: {best_vehicle[3]}")
+        print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Percurso: {' -> '.join(best_vehicle[1])}, Duração: {best_vehicle[2]} horas, Mantimentos entregues: {best_vehicle[3]}")
     else:
-        print("\nNenhum veículo conseguiu encontrar um caminho válido.")
+        print("\nNão foi possível encontrar um percurso para nenhum veículo.")
 
-    input("\nPressione Enter para voltar ao menu...")
+    input("\nPressiona Enter para voltar ao menu...")
 
 
 def simulate_events(graph, reduce_probability=True):
-    """
-    Simula eventos aleatórios no grafo, como bloqueio de rotas e alteração de urgências.
-    Esta função pode ser chamada uma vez para criar um estado inicial fixo.
 
-    :param graph: Objeto do grafo.
-    :param reduce_probability: Reduz a probabilidade de alterações (default=True).
-    :return: Lista de alterações aplicadas.
-    """
     alterations = []
 
-    print("\n--- Simulação de Eventos Aleatórios ---")
+    print("\n--- Simulação de eventos ---")
 
     for (origem, destino), route in graph.edges.items():
         if reduce_probability:

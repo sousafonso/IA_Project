@@ -12,10 +12,10 @@ from algoritmos.custo_uniforme import uniform_cost_search
 from utils.heuristica import heuristic
 from utils.visualizacao import visualize_graph_with_image
 
-# Criar o grafo
+
 grafo_complexo = Grafo()
 
-# Adicionar localidades
+
 localidades = [
     {"nome": "A", "populacao": 5000, "urgencia": 1, "acessibilidade": "asfalto", "mantimentos": 1200},
     {"nome": "B", "populacao": 4000, "urgencia": 3, "acessibilidade": "terra", "mantimentos": 15},
@@ -38,7 +38,7 @@ for loc in localidades:
     localidade.add_mantimento(loc.get("mantimentos", 0))
     grafo_complexo.add_node(localidade)
 
-# Adicionar rotas
+
 rotas = [
     ("A", "B", 10, "asfalto"),      
     ("A", "C", 15, "terra"),
@@ -55,11 +55,11 @@ rotas = [
 for origem, destino, distancia, pavimento in rotas:
     grafo_complexo.add_edge(origem, destino, distancia=distancia, pavimento=pavimento)
 
-# Configurar o transporte
+
 transporte_complexo = Transporte(tipo="camião", capacidade=1000, velocidade=80, autonomia=500)
 
-# Executar o DFS (exemplo)
+
 resultado_dfs = uniform_cost_search(grafo_complexo, start="A",transport=transporte_complexo, )
 
-# Exibir o resultado do DFS
+
 print(resultado_dfs)
