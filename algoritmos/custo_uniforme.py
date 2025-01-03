@@ -3,16 +3,12 @@ from heapq import heappop, heappush
 def uniform_cost_search(graph, start, transport):
     caminho_completo = []  
     total_entregue = 0  
-    localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0} 
+    localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0 and not node.reabastecimento} 
+    localidades_pendentes = set()  # Localidades que ainda precisam de entregas
     priority_queue = [(0, start, transport.carga_atual, transport.autonomia, [])]  
     visited = set()  
 
     def find_nearest_reabastecimento(current_node):
-        """
-        Encontra o reabastecimento mais próximo usando custo uniforme.
-        :param current_node: Objeto Localidade atual.
-        :return: Nome do reabastecimento mais próximo e custo.
-        """
         pq = [(0, current_node.nome)]
         visited_reabastecimento = set()
 
@@ -31,6 +27,7 @@ def uniform_cost_search(graph, start, transport):
                         heappush(pq, (cost + route.distancia, neighbor.nome))
 
         return None, float('inf')  
+    
     while priority_queue:
         custo_atual, current, carga_atual, autonomia_restante, path = heappop(priority_queue)
         caminho_completo.append(current)
@@ -43,6 +40,7 @@ def uniform_cost_search(graph, start, transport):
         if not current_node:
             continue
 
+        # Entregar mantimentos
         if current_node.mantimentos > 0 and current in localidades_restantes:
             entrega = min(current_node.mantimentos, carga_atual)
             current_node.mantimentos -= entrega
@@ -50,15 +48,29 @@ def uniform_cost_search(graph, start, transport):
             total_entregue += entrega
             if current_node.mantimentos == 0:
                 localidades_restantes.remove(current)
-            print(f"Entregue {entrega} mantimentos em {current_node.nome}. Restam {current_node.mantimentos}.")
+                print(f"Entregue {entrega} mantimentos em {current_node.nome}. Todos atendidos.")
+            else:
+                localidades_pendentes.add(current)
+                print(f"Entregue {entrega} mantimentos em {current_node.nome}. Ainda restam {current_node.mantimentos}.")
 
-
+        # Verificar reabastecimento
         if autonomia_restante <= 0 or carga_atual <= 0:
             if current_node.reabastecimento:
                 carga_atual = transport.capacidade
                 autonomia_restante = transport.autonomia
-                custo_atual += 1  
+                custo_atual += 3  # Tempo fixo para reabastecimento
                 print(f"Reabastecimento em {current_node.nome}: carga e autonomia restauradas.")
+
+                # Retornar às localidades pendentes após reabastecimento
+                if current in localidades_pendentes:
+                    localidades_pendentes.remove(current)
+                    heappush(priority_queue, (
+                        custo_atual,
+                        current,
+                        carga_atual,
+                        autonomia_restante,
+                        path
+                    ))
             else:
                 nearest_reabastecimento, distancia = find_nearest_reabastecimento(current_node)
                 if nearest_reabastecimento:
@@ -72,10 +84,12 @@ def uniform_cost_search(graph, start, transport):
                     ))
                 continue
 
-        if not localidades_restantes:
+        # Verificar se todas as localidades foram atendidas
+        if not localidades_restantes and not localidades_pendentes:
             print("Todas as localidades foram atendidas.")
             return caminho_completo, custo_atual
 
+        # Adicionar vizinhos à fila
         neighbors = graph.get_neighbors(current_node)
         for neighbor in neighbors:
             route = graph.get_route(current_node, neighbor)
@@ -89,5 +103,16 @@ def uniform_cost_search(graph, start, transport):
                     nova_autonomia,
                     path + [neighbor.nome]
                 ))
+
+        # Retornar às localidades pendentes
+        while localidades_pendentes:
+            pendente = localidades_pendentes.pop()
+            heappush(priority_queue, (
+                custo_atual,
+                pendente,
+                carga_atual,
+                autonomia_restante,
+                path + [pendente]
+            ))
 
     return caminho_completo, custo_atual
