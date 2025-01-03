@@ -97,17 +97,12 @@ def execute_algorithm(algorithm, graph):
     clear_screen()
     print(f"\nExecutando {algorithm}...")
     start = input("Digite o nó de início: ").strip()
-    goal = input("Digite o nó objetivo: ").strip()
 
     if not graph.get_node(start):
         print(f"O nó '{start}' não existe no grafo.")
         input("\nPressione Enter para voltar ao menu...")
         return
-    if not graph.get_node(goal):
-        print(f"O nó '{goal}' não existe no grafo.")
-        input("\nPressione Enter para voltar ao menu...")
-        return
-
+    
     # Simular eventos no grafo
     simulated_changes = simulate_events(graph, reduce_probability=True)
     print("\n--- Alterações Iniciais ---")
@@ -132,13 +127,13 @@ def execute_algorithm(algorithm, graph):
         if algorithm == "BFS":
             path, cost = bfs(graph, start, transporte)
         elif algorithm == "DFS":
-            path, cost = dfs(graph, start, goal, transporte)
-        elif algorithm == "A*":
-            path, cost = a_star(graph, start, goal, heuristic, transporte)
-        elif algorithm == "Greedy Search":
-            path, cost = greedy_search(graph, start, goal, heuristic, transporte)
-        elif algorithm == "Custo Uniforme":
-            path, cost = uniform_cost_search(graph, start, goal, transporte)
+            path, cost = dfs(graph, start, transporte)
+       # elif algorithm == "A*":
+       #     path, cost = a_star(graph, start, goal, heuristic, transporte)
+       # elif algorithm == "Greedy Search":
+       #     path, cost = greedy_search(graph, start, goal, heuristic, transporte)
+       # elif algorithm == "Custo Uniforme":
+       #     path, cost = uniform_cost_search(graph, start, goal, transporte)
         else:
             print("Algoritmo não reconhecido.")
             return
@@ -160,7 +155,9 @@ def execute_algorithm(algorithm, graph):
         graph.restore_original_costs()
 
     if results:
-        best_vehicle = min(results, key=lambda x: x[2] / x[3] if x[3] > 0 else float('inf'))
+        best_vehicle = min(
+            results, key=lambda x: (x[2] / x[3], x[2]) if x[3] > 0 else (float('inf'), float('inf'))
+        )
         print(f"\nMelhor veículo: {best_vehicle[0].capitalize()}, Caminho: {' -> '.join(best_vehicle[1])}, Custo: {best_vehicle[2]} horas, Mantimentos entregues: {best_vehicle[3]}")
     else:
         print("\nNenhum veículo conseguiu encontrar um caminho válido.")
@@ -215,14 +212,14 @@ if __name__ == "__main__":
     # Criar localidades com nova população e mantimentos
     loc_a = Localidade("Guimarães", populacao=2000, urgencia=3, acessibilidade="asfalto", reabastecimento=True)
     loc_b = Localidade("Braga", populacao=1500, urgencia=5, acessibilidade="terra")
-    loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha")
+    loc_c = Localidade("Fafe", populacao=1200, urgencia=2, acessibilidade="trilha", reabastecimento=True)
     loc_d = Localidade("Vizela", populacao=1800, urgencia=1, acessibilidade="asfalto")
     loc_e = Localidade("Ponte de Lima", populacao=900, urgencia=4, acessibilidade="terra", reabastecimento=True)
     loc_f = Localidade("Porto", populacao=214349, urgencia=2, acessibilidade="asfalto", reabastecimento=True)
     loc_g = Localidade("Lisboa", populacao=504718, urgencia=1, acessibilidade="paralelo")
-    loc_h = Localidade("Coimbra", populacao=143396, urgencia=4, acessibilidade="terra")
+    loc_h = Localidade("Coimbra", populacao=143396, urgencia=4, acessibilidade="terra", reabastecimento=True)
     loc_i = Localidade("Aveiro", populacao=78000, urgencia=3, acessibilidade="asfalto")
-    loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra")
+    loc_j = Localidade("Évora", populacao=56500, urgencia=2, acessibilidade="terra", reabastecimento=True)
     loc_k = Localidade("Faro", populacao=118000, urgencia=3, acessibilidade="asfalto")
 
     # Adicionar mantimentos atualizados

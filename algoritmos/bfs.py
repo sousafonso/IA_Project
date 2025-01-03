@@ -7,6 +7,7 @@ def bfs(graph, start, transport):
     queue = deque([([start], transport.carga_atual, transport.autonomia, 0)])  # Fila com (caminho, carga, autonomia, tempo)
     total_entregue = 0  # Total de mantimentos entregues
     localidades_restantes = {node.nome for node in graph.nodes.values() if node.mantimentos > 0}  # Localidades com mantimentos
+    caminho_completo = []
 
     def find_nearest_reabastecimento(current_node):
         """
@@ -37,6 +38,7 @@ def bfs(graph, start, transport):
     while queue:
         path, carga_atual, autonomia_restante, tempo_total = queue.popleft()  # Remove o caminho da frente da fila
         current = path[-1]  # Último nó no caminho atual
+        caminho_completo.append(current) 
 
         # Localidade atual
         current_node = graph.get_node(current)
@@ -74,7 +76,7 @@ def bfs(graph, start, transport):
         # Verificar se todas as localidades foram atendidas
         if not localidades_restantes:
             print("Todas as localidades foram atendidas.")
-            return path, tempo_total
+            return caminho_completo, tempo_total
 
         # Adicionar vizinhos à fila
         neighbors = sorted(
@@ -93,4 +95,4 @@ def bfs(graph, start, transport):
                     tempo_total + (route.distancia / transport.velocidade)  # Adicionar tempo da rota
                 ))
 
-    return path, tempo_total
+    return caminho_completo, tempo_total
