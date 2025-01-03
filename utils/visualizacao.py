@@ -2,10 +2,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def visualize_graph_with_image(graph):
-    """
-    Exibe o grafo como uma imagem usando NetworkX e Matplotlib.
-    :param graph: Objeto do grafo (implementação personalizada).
-    """
 
     nx_graph = nx.DiGraph()
 
