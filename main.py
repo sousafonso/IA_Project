@@ -81,7 +81,7 @@ def display_algorithm_menu(graph):
 def execute_algorithm(algorithm, graph):
 
     clear_screen()
-    print(f"\A executar {algorithm}...")
+    print(f"A executar {algorithm}...")
     start = input("Digite a localidade inicial: ").strip()
 
     if not graph.get_node(start):
